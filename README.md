@@ -14,9 +14,9 @@ Here's the easiest:
 
         mkdir -p ~/.n98-magerun/modules/
 
-2. Clone the magerun-addons repository in there
+2. Clone the hypernode-magerun repository in there
 
-        cd ~/.n98-magerun/modules/ && git clone git@github.com:peterjaap/hypernode-addons.git
+        cd ~/.n98-magerun/modules/ && git clone git@github.com:Hypernode/hypernode-magerun.git
 
 3. It should be installed. To see that it was installed, run magerun without any arguments to see if one of the new commands is in there.
 
