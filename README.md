@@ -31,17 +31,7 @@ Example usage:
 
         n98-magerun sys:modules:list-updates
 
-        Name                             Current      Latest
-        ==============================================================
-        Aoe_Scheduler                    0.4.3        1.3.1
-        Aoe_TemplateHints                0.3.0        0.4.3
-        Hans2103_HideCompare             1.0          1.0.2
-        Lesti_Fpc                        1.2.0        1.4.4
-        Magestore_Magenotification       0.1.3        0.1.4
-        Mirasvit_SearchLandingPage       1.0.0        1.0.1
-        Mollie_Mpm                       4.1.5        4.1.9
-        TIG_PostNL                       1.3.1        1.7.2
-        Yireo_DeleteAnyOrder             0.11.2       0.12.3
+![n98-magerun sys:modules:list-updates](https://cloud.githubusercontent.com/assets/431360/12973661/3d7842ec-d0ae-11e5-9ebb-40da2ceac3e3.png)
 
 See if newer versions exist for your currently installed Magento 1 modules (local & community). I hear you say, Magento Connect already does this? Not really, as Magento Connect only contains Magento-registered modules. As it appears, about 20% of modules-in-the-wild are not registered with Magento.
 
@@ -52,6 +42,8 @@ As of Feb 2016, it contains version information from about 500 installations.
 ### Determine required patches ###
 
         n98-magerun sys:info:patches
+
+![n98-magerun sys:info:patches](https://cloud.githubusercontent.com/assets/431360/12973660/3d77a648-d0ae-11e5-8a74-ddefb0e90d81.png)
 
 John Knowles maintains an [excellent spreadsheet](https://docs.google.com/spreadsheets/d/1MTbU9Bq130zrrsJwLIB9d8qnGfYZnkm4jBlfNaBF19M/pubhtml?widget=true) which links Magento versions with required patches.
 
