@@ -1,0 +1,33 @@
+{
+  "name": "hypernode/magerun-addons",
+  "description": "Hypernode addon commands for N98 MageRun",
+  "type": "magento-module",
+  "keywords": [
+    "magerun"
+  ],
+  "homepage": "https://github.com/peterjaap/hypernode-addons",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Hypernode Team",
+      "email": "hypernode@byte.nl",
+      "homepage": "http://www.hypernode.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Peter Jaap Blaakmeer",
+      "email": "peterjaap@elgentos.nl",
+      "homepage": "http://www.elgentos.nl",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.3",
+    "magento-hackathon/magento-composer-installer": "*"
+  },
+  "autoload": {
+    "psr-0": {
+      "Hypernode": "src/"
+    }
+  }
+}
