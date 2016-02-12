@@ -19,6 +19,12 @@
       "email": "peterjaap@elgentos.nl",
       "homepage": "http://www.elgentos.nl",
       "role": "Developer"
+    },
+    {
+      "name": "Jeroen Boersma",
+      "email": "jeroen@srcode.nl",
+      "homepage": "http://srcode.nl",
+      "role": "Developer"
     }
   ],
   "require": {
