@@ -99,12 +99,12 @@ class ListUpdatesCommand extends ListCommand
 
             $update = array($tableInfo['Name'], $tableInfo['codePool'], $tableInfo['current'], $tableInfo['latest']);
 
-            $latest = $tableInfo['current'] == $tableInfo['latest'];
+            $hasUpdate = $tableInfo['current'] != $tableInfo['latest'];
 
             if ($doFormat) {
-                $update[] = '<comment>' . ($latest ? 'Yes' : 'No') . '</comment>';
+                $update[] = ($hasUpdate ? '<comment>Yes</comment>' : '<info>No</info>') . '';
             } else {
-                $update[] = ($latest ? 'Yes' : 'No');
+                $update[] = ($hasUpdate ? 'Yes' : 'No');
             }
 
             /**
@@ -113,10 +113,10 @@ class ListUpdatesCommand extends ListCommand
             /*if($tableInfo['Status'] == 'inactive') {
                 $tableInfo['Name'] .= ' <error>(inactive)</error>';
             }*/
-            if ($latest) {
-                $rowsLatest[] = $update;
-            } else {
+            if ($hasUpdate) {
                 $rowsUpdates[] = $update;
+            } else {
+                $rowsLatest[] = $update;
             }
         }
 
