@@ -4,6 +4,8 @@ namespace Hypernode\Magento\Command\System\Info;
 
 use N98\Magento\Command\AbstractMagentoCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -19,7 +21,13 @@ class PatchesCommand extends AbstractMagentoCommand
     {
         $this
             ->setName('sys:info:patches')
-            ->setDescription('Determine required patches [Hypernode]');
+            ->setDescription('Determine required patches [Hypernode]')
+            ->addOption(
+                    'format',
+                    null,
+                    InputOption::VALUE_OPTIONAL,
+                    'Output Format. One of [' . implode(',', RendererFactory::getFormats()) . ']'
+            );
     }
 
     /**
@@ -58,25 +66,43 @@ class PatchesCommand extends AbstractMagentoCommand
                 $this->_loadPatchFile();
             }
 
-            if(count($patchesList, COUNT_RECURSIVE) - count($patchesList)) {
-                $table = new Table($output);
-                $table->setHeaders(array('Patch', 'Type', 'Applied'));
-                $rows = array();
-                foreach ($patchesList as $patchType => $patches) {
-                    foreach ($patches as $patch) {
-                        $rows[] = array(
-                            $patch,
-                            $patchType,
-                            (isset($this->appliedPatches[$patch]) ? '<info>Yes</info>' : (($patchType == 'required') ? '<error>No</error>' : '<notice>No</notice>'))
-                        );
-                    }
-                }
-
-                $table->setRows($rows);
-                $table->render();
-            } else {
+            if(count($patchesList, COUNT_RECURSIVE) - count($patchesList) <= 0) {
                 $output->writeln('<info>No patches are necessary, your installation is up to date!</info>');
+                exit();
             }
+
+            $doFormat = $input->getOption('format') === null;
+
+            $rows = array();
+            foreach ($patchesList as $patchType => $patches) {
+                foreach ($patches as $patch) {
+
+                    // Tell if patch is applied
+                    $isApplied = isset($this->appliedPatches[$patch]);
+
+                    if ($isApplied && $doFormat) {
+                        $applied = '<info>Yes</info>';
+                    } else if ($isApplied) {
+                        $applied = 'Yes';
+                    } else if ($doFormat) {
+                        $applied = ($patchType == 'required') ? '<error>No</error>' : '<comment>No</comment>';
+                    } else {
+                        $applied = 'No';
+                    }
+
+                    $rows[] = array(
+                        $patch,
+                        $patchType,
+                        $applied
+                    );
+                }
+            }
+
+            $this->getHelper('table')
+                    ->setHeaders(array('Patch', 'Type', 'Applied'))
+                    ->renderByFormat($output, $rows, $input->getOption('format'));
+
+
         }
     }
 
