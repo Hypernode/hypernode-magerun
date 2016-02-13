@@ -12,7 +12,7 @@ use Symfony\Component\Console\Helper\TableSeparator;
 
 class PatchesCommand extends AbstractMagentoCommand
 {
-    const HYPERNODE_PATCH_TOOL_URL = 'http://tools.hypernode.com/patches/';
+    const HYPERNODE_PATCH_TOOL_URL = 'https://tools.hypernode.com/patches/';
 
     private $patchFile;
     private $appliedPatches;

@@ -16,7 +16,7 @@ use Symfony\Component\Console\Helper\TableSeparator;
 
 class ListUpdatesCommand extends ListCommand
 {
-    const TOOLS_HYPERNODE_MODULE_URL = 'http://tools.hypernode.com/modules/magerun.json';
+    const TOOLS_HYPERNODE_MODULE_URL = 'https://tools.hypernode.com/modules/magerun.json';
 
     protected function configure()
     {
