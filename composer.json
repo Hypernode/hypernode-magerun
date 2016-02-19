@@ -4,6 +4,7 @@
   "keywords": [
     "magerun"
   ],
+  "minimum-stability": "dev",
   "homepage": "https://github.com/Hypernode/hypernode-magerun",
   "license": "MIT",
   "authors": [
@@ -31,7 +32,8 @@
     "php": ">=5.3"
   },
   "require-dev": {
-    "phpunit/phpunit": "~4.1"
+    "phpunit/phpunit": "~4.8",
+    "n98/magerun": "~1.97"
   },
   "autoload": {
     "psr-0": {
