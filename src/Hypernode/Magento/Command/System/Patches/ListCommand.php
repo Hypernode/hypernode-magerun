@@ -1,6 +1,6 @@
 <?php
 
-namespace Hypernode\Magento\Command\System\Info;
+namespace Hypernode\Magento\Command\System\Patches;
 
 use N98\Magento\Command\AbstractMagentoCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 
-class PatchesCommand extends AbstractMagentoCommand
+class ListCommand extends AbstractMagentoCommand
 {
     const HYPERNODE_PATCH_TOOL_URL = 'https://tools.hypernode.com/patches/';
 
@@ -20,7 +20,8 @@ class PatchesCommand extends AbstractMagentoCommand
     protected function configure()
     {
         $this
-            ->setName('sys:info:patches')
+            ->setName('sys:patches:list')
+            ->setAliases(['sys:info:patches'])
             ->setDescription('Determine required patches [Hypernode]')
             ->addOption(
                     'format',
