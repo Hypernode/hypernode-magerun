@@ -2,7 +2,8 @@
 
 namespace Hypernode\Magento\Command\System\Patches;
 
-use N98\Magento\Command\AbstractMagentoCommand;
+use Hypernode\Curl;
+use Hypernode\Magento\Command\AbstractHypernodeCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
@@ -10,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 
-class ListCommand extends AbstractMagentoCommand
+class ListCommand extends AbstractHypernodeCommand
 {
     const HYPERNODE_PATCH_TOOL_URL = 'https://tools.hypernode.com/patches/';
 
@@ -47,11 +48,9 @@ class ListCommand extends AbstractMagentoCommand
             $_patchUrl = self::HYPERNODE_PATCH_TOOL_URL . ($_isEnterprise ? 'enterprise' : 'community') . DIRECTORY_SEPARATOR . \Mage::getVersion();
 
             try {
-                $curl = curl_init($_patchUrl);
-                curl_setopt($curl, CURLOPT_HEADER, false);
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-                $patchesListJson = curl_exec($curl);
+                $curl = $this->getCurl();
+                $curl->get($_patchUrl);
+                $patchesListJson = $curl->response;
             } catch (Exception $e) {
                 $output->writeln('<error>Could not fetch data from Hypernode platform; ' . $e->getMessage() . '</error>');
                 exit(1);
