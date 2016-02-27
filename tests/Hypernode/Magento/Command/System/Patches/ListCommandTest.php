@@ -2,6 +2,7 @@
 
 namespace Hypernode\Magento\Command\System\Patches;
 
+use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -44,9 +45,24 @@ class ListCommandTest extends TestCase
 
     public function testExecute()
     {
-        /** @todo Create a mock for curl */
-//        $commandTester = new CommandTester($this->command);
-//        $commandTester->execute([]);
+        $command = $this->getCommand();
+
+        $curl = $this->getMock(Curl::class, ['get']);
+
+        $curl->expects($this->any())
+                ->method('get');
+
+        $curl->response = json_encode(array(
+            'required' => ["SUPEE-01234"]
+        ));
+
+        // Set mock
+        $command->setCurl($curl);
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([]);
+
+        $this->assertRegExp('/SUPEE\-01234/', $commandTester->getDisplay());
     }
 
 }
