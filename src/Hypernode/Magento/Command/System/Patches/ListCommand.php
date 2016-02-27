@@ -2,14 +2,11 @@
 
 namespace Hypernode\Magento\Command\System\Patches;
 
-use Hypernode\Curl;
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableSeparator;
 
 class ListCommand extends AbstractHypernodeCommand
 {
