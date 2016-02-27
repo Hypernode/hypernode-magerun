@@ -2,6 +2,13 @@
 
 namespace Hypernode;
 
+/**
+ * Because it is one-on-one from curl/curl library, added locally because magerun doesn't support vendor including in modules
+ * Uses his own bootstrap
+ * @codeCoverageIgnore
+ *
+ * @package Hypernode
+ */
 class Curl
 {
 
