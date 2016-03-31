@@ -39,11 +39,11 @@ class PatchesCommand extends AbstractMagentoCommand
     {
         $this->detectMagento($output);
         if ($this->initMagento()) {
-            $this->patchFile = \Mage::getBaseDir('etc') . DS . 'applied.patches.list';
+            $this->patchFile = \Mage::getBaseDir('etc') . DIRECTORY_SEPARATOR . 'applied.patches.list';
 
             $_isEnterprise = $this->getApplication()->isMagentoEnterprise();
 
-            $_patchUrl = self::HYPERNODE_PATCH_TOOL_URL . ($_isEnterprise ? 'enterprise' : 'community') . DS . \Mage::getVersion();
+            $_patchUrl = self::HYPERNODE_PATCH_TOOL_URL . ($_isEnterprise ? 'enterprise' : 'community') . DIRECTORY_SEPARATOR . \Mage::getVersion();
 
             try {
                 $curl = curl_init($_patchUrl);
