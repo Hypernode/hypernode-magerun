@@ -39,6 +39,7 @@ abstract class AbstractHypernodeCommand extends AbstractMagentoCommand
 
         return $this;
     }
+
 }
 
 
