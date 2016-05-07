@@ -49,8 +49,9 @@ class ListCommandTest extends TestCase
 
         $curl = $this->getMock(Curl::class, ['get']);
 
-        $curl->expects($this->any())
-                ->method('get');
+        $curl->expects($this->once())
+                ->method('get')
+                ->with($this->stringStartsWith($command::HYPERNODE_PATCH_TOOL_URL));
 
         $curl->response = json_encode(array(
             'required' => ["SUPEE-01234"]

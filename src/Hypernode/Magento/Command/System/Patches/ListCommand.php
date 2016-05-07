@@ -19,7 +19,7 @@ class ListCommand extends AbstractHypernodeCommand
     {
         $this
             ->setName('sys:patches:list')
-            ->setAliases(['sys:info:patches'])
+            ->setAliases(['sys:info:patches']) // Backwards compatible
             ->setDescription('Determine required patches [Hypernode]')
             ->addOption(
                     'format',
@@ -37,70 +37,68 @@ class ListCommand extends AbstractHypernodeCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->detectMagento($output);
-        if ($this->initMagento()) {
-            $this->patchFile = \Mage::getBaseDir('etc') . DIRECTORY_SEPARATOR . 'applied.patches.list';
-
-            $_isEnterprise = $this->getApplication()->isMagentoEnterprise();
-
-            $_patchUrl = self::HYPERNODE_PATCH_TOOL_URL . ($_isEnterprise ? 'enterprise' : 'community') . DIRECTORY_SEPARATOR . \Mage::getVersion();
-
-            try {
-                $curl = $this->getCurl();
-                $curl->get($_patchUrl);
-                $patchesListJson = $curl->response;
-            } catch (Exception $e) {
-                $output->writeln('<error>Could not fetch data from Hypernode platform; ' . $e->getMessage() . '</error>');
-                exit(1);
-            }
-
-            $patchesList = json_decode($patchesListJson, true);
-            if (!$patchesList) {
-                $output->writeln('<error>Could not fetch patches list from Hypernode platform.</error>');
-                exit(1);
-            }
-
-            if (file_exists($this->patchFile)) {
-                $this->_loadPatchFile();
-            }
-
-            if(count($patchesList, COUNT_RECURSIVE) - count($patchesList) <= 0) {
-                $output->writeln('<info>No patches are necessary, your installation is up to date!</info>');
-                exit();
-            }
-
-            $doFormat = $input->getOption('format') === null;
-
-            $rows = array();
-            foreach ($patchesList as $patchType => $patches) {
-                foreach ($patches as $patch) {
-
-                    // Tell if patch is applied
-                    $isApplied = isset($this->appliedPatches[$patch]);
-
-                    if ($isApplied && $doFormat) {
-                        $applied = '<info>Yes</info>';
-                    } else if ($isApplied) {
-                        $applied = 'Yes';
-                    } else if ($doFormat) {
-                        $applied = ($patchType == 'required') ? '<error>No</error>' : '<comment>No</comment>';
-                    } else {
-                        $applied = 'No';
-                    }
-
-                    $rows[] = array(
-                        $patch,
-                        $patchType,
-                        $applied
-                    );
-                }
-            }
-
-            $this->getHelper('table')
-                    ->setHeaders(array('Patch', 'Type', 'Applied'))
-                    ->renderByFormat($output, $rows, $input->getOption('format'));
-
-
+        if (!$this->initMagento()) {
+            return;
         }
+
+        $this->patchFile = \Mage::getBaseDir('etc') . DIRECTORY_SEPARATOR . 'applied.patches.list';
+
+        $_isEnterprise = $this->getApplication()->isMagentoEnterprise();
+
+        $_patchUrl = self::HYPERNODE_PATCH_TOOL_URL . ($_isEnterprise ? 'enterprise' : 'community') . DIRECTORY_SEPARATOR . \Mage::getVersion();
+
+        try {
+            $curl = $this->getCurl();
+            $curl->get($_patchUrl);
+            $patchesListJson = $curl->response;
+        } catch (Exception $e) {
+            $output->writeln('<error>Could not fetch data from Hypernode platform; ' . $e->getMessage() . '</error>');
+            exit(1);
+        }
+
+        $patchesList = json_decode($patchesListJson, true);
+        if (!$patchesList) {
+            $output->writeln('<error>Could not fetch patches list from Hypernode platform.</error>');
+            exit(1);
+        }
+
+        $this->_loadPatchFile();
+
+        if(count($patchesList, COUNT_RECURSIVE) - count($patchesList) <= 0) {
+            $output->writeln('<info>No patches are necessary, your installation is up to date!</info>');
+            exit();
+        }
+
+        $doFormat = $input->getOption('format') === null;
+
+        $rows = array();
+        foreach ($patchesList as $patchType => $patches) {
+            foreach ($patches as $patch) {
+
+                // Tell if patch is applied
+                $isApplied = isset($this->appliedPatches[$patch]);
+
+                if ($isApplied && $doFormat) {
+                    $applied = '<info>Yes</info>';
+                } else if ($isApplied) {
+                    $applied = 'Yes';
+                } else if ($doFormat) {
+                    $applied = ($patchType == 'required') ? '<error>No</error>' : '<comment>No</comment>';
+                } else {
+                    $applied = 'No';
+                }
+
+                $rows[] = array(
+                    $patch,
+                    $patchType,
+                    $applied
+                );
+            }
+        }
+
+        $this->getHelper('table')
+                ->setHeaders(array('Patch', 'Type', 'Applied'))
+                ->renderByFormat($output, $rows, $input->getOption('format'));
     }
 
     /**
