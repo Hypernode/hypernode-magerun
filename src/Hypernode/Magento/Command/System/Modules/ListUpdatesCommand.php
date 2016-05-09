@@ -2,19 +2,15 @@
 
 namespace Hypernode\Magento\Command\System\Modules;
 
-use N98\Magento\Command\Developer\Module\ListCommand;
-use N98\Magento\Command\AbstractMagentoCommand;
+use Hypernode\Magento\Command\AbstractHypernodeCommand;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
+use N98\Magento\Modules;
 
-
-class ListUpdatesCommand extends ListCommand
+class ListUpdatesCommand extends AbstractHypernodeCommand
 {
     const TOOLS_HYPERNODE_MODULE_URL = 'https://tools.hypernode.com/modules/magerun.json';
 
@@ -35,6 +31,17 @@ class ListUpdatesCommand extends ListCommand
     }
 
     /**
+     * Get modules
+     *
+     * @return Modules
+     */
+    public function getModules()
+    {
+        $modules = new Modules();
+        return $modules->findInstalledModules();
+    }
+
+    /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return int|void
@@ -42,12 +49,22 @@ class ListUpdatesCommand extends ListCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->detectMagento($output);
-        $this->initMagento();
+        if (!$this->initMagento()) {
+            return;
+        }
 
-        $this->findInstalledModules();
-        $this->filterModules($input);
+        $modules = $this->getModules()
+                ->filterModules($input);
 
-        $listModules = $this->infos;
+        if (!count($modules)) {
+            $output->writeln('<error>Could not parse sys:modules:list</error>');
+            exit;
+        }
+
+        // Compatibility fix
+        $listModules = array_map(function($item){
+            return array_combine(array('codePool', 'Name', 'Version', 'Status'), $item);
+        }, iterator_to_array($modules));
 
         $options = JSON_FORCE_OBJECT;
         if (version_compare(PHP_VERSION, '5.4', '>=')) {
@@ -55,31 +72,22 @@ class ListUpdatesCommand extends ListCommand
         }
         $listModulesJson = json_encode($listModules, $options);
 
-        if (!$listModules) {
-            $output->writeln('<error>Could not parse sys:modules:list JSON to array</error>');
-            exit;
-        } else {
-            $modulesInfo = array();
-            foreach ($listModules as $moduleInfo) {
-                $modulesInfo[$moduleInfo['Name']] = $moduleInfo;
-            }
+        $modulesInfo = array();
+        foreach ($listModules as $moduleInfo) {
+            $modulesInfo[$moduleInfo['Name']] = $moduleInfo;
         }
 
         try {
-            $curl = curl_init(self::TOOLS_HYPERNODE_MODULE_URL);
-            curl_setopt_array($curl, array(
-                    CURLOPT_HEADER => false,
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => $listModulesJson,
-                    CURLOPT_HTTPHEADER => array(
-                            'Accept: application/json',
-                            'Content-Type: application/json',
-                            'Content-Length: ' . strlen($listModulesJson)
-                    )
-            ));
 
-            $response = curl_exec($curl);
+            $curl = $this->getCurl();
+
+            $curl->setHeader('Accept', 'application/json');
+            $curl->setHeader('Content-Type', 'application/json');
+            $curl->setHeader('Content-Length', strlen($listModulesJson));
+
+            $curl->post(self::TOOLS_HYPERNODE_MODULE_URL, $listModulesJson);
+
+            $response = $curl->response;
         } catch (Exception $e) {
             $output->writeln('<error>Could not fetch data from Hypernode platform; ' . $e->getMessage() . '</error>');
             exit(1);
@@ -126,4 +134,5 @@ class ListUpdatesCommand extends ListCommand
                 ->setHeaders(array('Name', 'Code pool', 'Current version', 'Latest version', 'Newer version available?'))
                 ->renderByFormat($output, $rows, $input->getOption('format'));
     }
+
 }

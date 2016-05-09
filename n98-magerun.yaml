@@ -4,4 +4,4 @@ autoloaders:
 commands:
   customCommands:
     - Hypernode\Magento\Command\System\Modules\ListUpdatesCommand
-    - Hypernode\Magento\Command\System\Info\PatchesCommand
+    - Hypernode\Magento\Command\System\Patches\ListCommand
