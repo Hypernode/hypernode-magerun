@@ -63,12 +63,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
 
         // Compatibility fix
         $listModules = array_map(function($item){
-            return array(
-                'codePool' => isset($item['Code pool']) ? $item['Code pool'] : $item['codePool'],
-                'Name' => $item['Name'],
-                'Version' => $item['Version'],
-                'Status' => $item['Status'],
-            );
+            return array_combine(array('codePool', 'Name', 'Version', 'Status'), $item);
         }, iterator_to_array($modules));
 
         $options = JSON_FORCE_OBJECT;
