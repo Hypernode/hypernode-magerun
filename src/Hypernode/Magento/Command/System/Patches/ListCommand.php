@@ -14,6 +14,8 @@ class ListCommand extends AbstractHypernodeCommand
 
     private $patchFile;
     private $appliedPatches;
+    
+    protected $_input;
 
     protected function configure()
     {
@@ -21,6 +23,7 @@ class ListCommand extends AbstractHypernodeCommand
             ->setName('sys:patches:list')
             ->setAliases(['sys:info:patches']) // Backwards compatible
             ->setDescription('Determine required patches [Hypernode]')
+            ->addOption('no-verify', null, InputOption::VALUE_NONE, 'Do not verify the SSL certificate')
             ->addOption(
                     'format',
                     null,
@@ -41,6 +44,8 @@ class ListCommand extends AbstractHypernodeCommand
             return;
         }
 
+        $this->_input = $input;
+
         $this->patchFile = \Mage::getBaseDir('etc') . DIRECTORY_SEPARATOR . 'applied.patches.list';
 
         $_isEnterprise = $this->getApplication()->isMagentoEnterprise();
@@ -49,7 +54,14 @@ class ListCommand extends AbstractHypernodeCommand
 
         try {
             $curl = $this->getCurl();
-            if($curl->curl_error_code === 60){
+
+            if($this->_input->getOption('no-verify')){
+                $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+            }
+
+            $curl->get($_patchUrl);
+
+            if($curl->curl_error_code === 60 && !$this->_input->getOption('no-verify')){
                 $dialog = $this->getHelperSet()->get('dialog');
                 $verifySSL = $dialog->askConfirmation($output,
                     '<question>The SSL certificate at tools.hypernode.com could not be verified and might be expired, continue without verifying?</question> <comment>[yes]</comment> ', true);
@@ -58,7 +70,7 @@ class ListCommand extends AbstractHypernodeCommand
                     $curl->get($_patchUrl);
                 }
             }
-            $curl->get($_patchUrl);
+
             $patchesListJson = $curl->response;
         } catch (Exception $e) {
             $output->writeln('<error>Could not fetch data from Hypernode platform; ' . $e->getMessage() . '</error>');
