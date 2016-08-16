@@ -14,6 +14,8 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
 {
     const TOOLS_HYPERNODE_MODULE_URL = 'https://tools.hypernode.com/modules/magerun.json';
 
+    protected $_input;
+
     protected function configure()
     {
         $this
@@ -21,6 +23,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             ->addOption('codepool', null, InputOption::VALUE_OPTIONAL, 'Show modules in a specific codepool')
             ->addOption('status', null, InputOption::VALUE_OPTIONAL, 'Show modules with a specific status')
             ->addOption('vendor', null, InputOption::VALUE_OPTIONAL, 'Show modules of a specified vendor')
+            ->addOption('no-verify', null, InputOption::VALUE_NONE, 'Do not verify the SSL certificate')
             ->setDescription('Find available updates for installed modules [Hypernode]')
             ->addOption(
                 'format',
@@ -53,6 +56,8 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             return;
         }
 
+        $this->_input = $input;
+
         $modules = $this->getModules()
                 ->filterModules($input);
 
@@ -78,14 +83,27 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
         }
 
         try {
-
             $curl = $this->getCurl();
 
             $curl->setHeader('Accept', 'application/json');
             $curl->setHeader('Content-Type', 'application/json');
             $curl->setHeader('Content-Length', strlen($listModulesJson));
 
+            if($this->_input->getOption('no-verify')){
+                $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+            }
+            
             $curl->post(self::TOOLS_HYPERNODE_MODULE_URL, $listModulesJson);
+
+            if($curl->curl_error_code === 60 && !$this->_input->getOption('no-verify')){
+                $dialog = $this->getHelperSet()->get('dialog');
+                $verifySSL = $dialog->askConfirmation($output,
+                    '<question>The SSL certificate at tools.hypernode.com could not be verified and might be expired, continue without verifying?</question> <comment>[yes]</comment> ', true);
+                if($verifySSL ){
+                    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+                    $curl->post(self::TOOLS_HYPERNODE_MODULE_URL, $listModulesJson);
+                }
+            }
 
             $response = $curl->response;
         } catch (Exception $e) {
