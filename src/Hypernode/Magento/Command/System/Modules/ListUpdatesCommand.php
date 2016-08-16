@@ -56,7 +56,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             return;
         }
 
-
+        $this->_input = $input;
 
         $modules = $this->getModules()
                 ->filterModules($input);
