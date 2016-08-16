@@ -84,7 +84,8 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             $curl->setHeader('Accept', 'application/json');
             $curl->setHeader('Content-Type', 'application/json');
             $curl->setHeader('Content-Length', strlen($listModulesJson));
-
+            $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+            
             $curl->post(self::TOOLS_HYPERNODE_MODULE_URL, $listModulesJson);
 
             $response = $curl->response;

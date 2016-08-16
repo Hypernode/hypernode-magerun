@@ -49,6 +49,7 @@ class ListCommand extends AbstractHypernodeCommand
 
         try {
             $curl = $this->getCurl();
+            $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
             $curl->get($_patchUrl);
             $patchesListJson = $curl->response;
         } catch (Exception $e) {
