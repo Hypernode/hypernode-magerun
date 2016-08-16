@@ -84,9 +84,18 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             $curl->setHeader('Accept', 'application/json');
             $curl->setHeader('Content-Type', 'application/json');
             $curl->setHeader('Content-Length', strlen($listModulesJson));
-            $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
             
             $curl->post(self::TOOLS_HYPERNODE_MODULE_URL, $listModulesJson);
+
+            if($curl->curl_error_code === 60){
+                $dialog = $this->getHelperSet()->get('dialog');
+                $verifySSL = $dialog->askConfirmation($output,
+                    '<question>The SSL certificate at tools.hypernode.com could not be verified and might be expired, continue without verifying?</question> <comment>[yes]</comment> ', true);
+                if($verifySSL){
+                    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+                    $curl->post(self::TOOLS_HYPERNODE_MODULE_URL, $listModulesJson);
+                }
+            }
 
             $response = $curl->response;
         } catch (Exception $e) {

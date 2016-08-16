@@ -49,7 +49,15 @@ class ListCommand extends AbstractHypernodeCommand
 
         try {
             $curl = $this->getCurl();
-            $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+            if($curl->curl_error_code === 60){
+                $dialog = $this->getHelperSet()->get('dialog');
+                $verifySSL = $dialog->askConfirmation($output,
+                    '<question>The SSL certificate at tools.hypernode.com could not be verified and might be expired, continue without verifying?</question> <comment>[yes]</comment> ', true);
+                if($verifySSL){
+                    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+                    $curl->get($_patchUrl);
+                }
+            }
             $curl->get($_patchUrl);
             $patchesListJson = $curl->response;
         } catch (Exception $e) {
