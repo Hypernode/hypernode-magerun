@@ -6,7 +6,7 @@
  * Time: 12:56
  */
 
-namespace Hypernode\Magento\Command\System\Modules;
+namespace Hypernode\Magento\Command\Hypernode\Modules;
 
 use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
@@ -26,13 +26,13 @@ class ListUpdatesCommandTest extends TestCase
     public function getCommand()
     {
         return $this->getApplication()
-                ->find('sys:modules:list-updates');
+                ->find('hypernode:modules:list-updates');
     }
 
     public function testName()
     {
         $command = $this->getCommand();
-        $this->assertEquals('sys:modules:list-updates', $command->getName());
+        $this->assertEquals('hypernode:modules:list-updates', $command->getName());
     }
 
     public function testAliases()
