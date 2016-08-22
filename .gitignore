@@ -1,2 +1,5 @@
 /vendor/
 /.idea/
+/coverage.txt
+/composer.lock
+/phpunit.xml

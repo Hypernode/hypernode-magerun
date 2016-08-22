@@ -57,7 +57,7 @@ class GenerateMapsCommand extends AbstractHypernodeCommand
                 }
             } else {
                 $output->writeln('<info>File already exists, outputting it.</info>');
-                $this->writeSection($output, 'Mage::run maps for Nginx. [Hypernode]');
+                $this->writeSection($output, 'Mage run maps for Nginx. [Byte Hypernode]');
                 $output->writeln($map);
             }
         } else {

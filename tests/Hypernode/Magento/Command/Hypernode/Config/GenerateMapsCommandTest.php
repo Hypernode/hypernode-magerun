@@ -1,18 +1,24 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: jeroen
+ * Date: 7-5-16
+ * Time: 12:56
+ */
 
-namespace Hypernode\Magento\Command\Hypernode\Patches;
+namespace Hypernode\Magento\Command\Hypernode\Config;
 
 use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class ListCommandTest extends TestCase
+class GenerateMapsCommandTest extends TestCase
 {
 
     public function setUp()
     {
         $application = $this->getApplication();
-        $command = new ListCommand();
+        $command = new GenerateMapsCommand();
 
         $application->add($command);
     }
@@ -20,13 +26,13 @@ class ListCommandTest extends TestCase
     public function getCommand()
     {
         return $this->getApplication()
-                ->find('hypernode:patches:list');
+                ->find('hypernode:maps-generate');
     }
 
     public function testName()
     {
         $command = $this->getCommand();
-        $this->assertEquals('hypernode:patches:list', $command->getName());
+        $this->assertEquals('hypernode:maps-generate', $command->getName());
     }
 
     public function testAliases()
@@ -38,31 +44,21 @@ class ListCommandTest extends TestCase
     public function testOptions()
     {
         $command = $this->getCommand();
-        $this->assertEquals('format', $command->getDefinition()
-                ->getOption('format')->getName());
+        $this->assertEquals('save', $command->getDefinition()
+                ->getOption('save')->getName());
     }
+
 
     public function testExecute()
     {
         $command = $this->getCommand();
 
-        $curl = $this->getMock(Curl::class, ['get']);
-
-        $curl->expects($this->once())
-                ->method('get')
-                ->with($this->stringStartsWith($command::HYPERNODE_PATCH_TOOL_URL));
-
-        $curl->response = json_encode(array(
-            'required' => ["SUPEE-01234"]
-        ));
-
-        // Set mock
-        $command->setCurl($curl);
-
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 
-        $this->assertRegExp('/SUPEE\-01234/', $commandTester->getDisplay());
+        $result = $commandTester->getDisplay();
+
+        $this->assertRegExp('/^(.*?(Mage run maps for Nginx. \[Byte Hypernode\] )[^$]*)$/m',$result);
     }
 
 }
