@@ -1,6 +1,6 @@
 <?php
 
-namespace Hypernode\Magento\Command\System\Modules;
+namespace Hypernode\Magento\Command\Hypernode\Modules;
 
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
@@ -17,11 +17,11 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
     protected function configure()
     {
         $this
-            ->setName('sys:modules:list-updates')
+            ->setName('hypernode:modules:list-updates')
             ->addOption('codepool', null, InputOption::VALUE_OPTIONAL, 'Show modules in a specific codepool')
             ->addOption('status', null, InputOption::VALUE_OPTIONAL, 'Show modules with a specific status')
             ->addOption('vendor', null, InputOption::VALUE_OPTIONAL, 'Show modules of a specified vendor')
-            ->setDescription('Find available updates for installed modules [Hypernode]')
+            ->setDescription('Find available updates for installed modules.')
             ->addOption(
                 'format',
                 null,

@@ -1,6 +1,6 @@
 <?php
 
-namespace Hypernode\Magento\Command\System\Patches;
+namespace Hypernode\Magento\Command\Hypernode\Patches;
 
 use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
@@ -20,20 +20,19 @@ class ListCommandTest extends TestCase
     public function getCommand()
     {
         return $this->getApplication()
-                ->find('sys:patches:list');
+                ->find('hypernode:patches:list');
     }
 
     public function testName()
     {
         $command = $this->getCommand();
-        $this->assertEquals('sys:patches:list', $command->getName());
+        $this->assertEquals('hypernode:patches:list', $command->getName());
     }
 
     public function testAliases()
     {
-        // Backwards compatible
         $command = $this->getCommand();
-        $this->assertArraySubset(['sys:info:patches'], $command->getAliases());
+        $this->assertArraySubset([], $command->getAliases());
     }
 
     public function testOptions()
