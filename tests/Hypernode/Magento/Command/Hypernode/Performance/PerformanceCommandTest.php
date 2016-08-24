@@ -1,9 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: jeroen
- * Date: 7-5-16
- * Time: 12:56
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
  */
 
 namespace Hypernode\Magento\Command\Hypernode\Performance;
@@ -11,7 +13,6 @@ namespace Hypernode\Magento\Command\Hypernode\Performance;
 use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Psy\Shell;
 
 class PerformanceCommandTest extends TestCase
 {
