@@ -14,6 +14,10 @@ use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * Class ParseLogCommandTest
+ * @package Hypernode\Magento\Command\Hypernode\Config
+ */
 class ParseLogCommandTest extends TestCase
 {
 
