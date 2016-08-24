@@ -210,3 +210,4 @@ class Curl
         $this->setopt(CURLOPT_RETURNTRANSFER, true);
     }
 }
+
