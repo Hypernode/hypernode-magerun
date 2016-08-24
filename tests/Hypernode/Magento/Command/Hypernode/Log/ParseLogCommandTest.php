@@ -33,13 +33,13 @@ class ParseLogCommandTest extends TestCase
     public function getCommand()
     {
         return $this->getApplication()
-                ->find('hypernode:log:parse');
+                ->find('hypernode:log-analyses');
     }
 
     public function testName()
     {
         $command = $this->getCommand();
-        $this->assertEquals('hypernode:log:parse', $command->getName());
+        $this->assertEquals('hypernode:log-analyses', $command->getName());
     }
 
     public function testOptions()

@@ -30,7 +30,7 @@ class ParseLogCommand extends AbstractHypernodeCommand
     protected function configure()
     {
         $this
-            ->setName('hypernode:log:parse')
+            ->setName('hypernode:log-analyses')
             ->setDescription('Output the top [top] most frequent lines in system.log')
             ->addArgument('top', InputArgument::OPTIONAL, "Amount of unique lines to show.", 10)
             ->addOption('log', 'l', InputOption::VALUE_OPTIONAL, "log file name [Note: it was build for system.log]", false);
