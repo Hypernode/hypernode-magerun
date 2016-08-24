@@ -1,6 +1,14 @@
 <?php
+/**
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
+ */
 
-namespace Hypernode\Magento\Command\System\Patches;
+namespace Hypernode\Magento\Command\Hypernode\Patches;
 
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -8,6 +16,10 @@ use Symfony\Component\Console\Input\InputOption;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class ListCommand
+ * @package Hypernode\Magento\Command\Hypernode\Patches
+ */
 class ListCommand extends AbstractHypernodeCommand
 {
     const HYPERNODE_PATCH_TOOL_URL = 'https://tools.hypernode.com/patches/';
@@ -18,9 +30,8 @@ class ListCommand extends AbstractHypernodeCommand
     protected function configure()
     {
         $this
-            ->setName('sys:patches:list')
-            ->setAliases(['sys:info:patches']) // Backwards compatible
-            ->setDescription('Determine required patches [Hypernode]')
+            ->setName('hypernode:patches:list')
+            ->setDescription('Determine required patches.')
             ->addOption(
                     'format',
                     null,
@@ -124,5 +135,5 @@ class ListCommand extends AbstractHypernodeCommand
         }
         $ioAdapter->streamClose();
     }
-
 }
+

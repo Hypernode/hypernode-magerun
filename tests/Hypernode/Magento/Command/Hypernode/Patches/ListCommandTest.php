@@ -1,11 +1,23 @@
 <?php
+/**
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
+ */
 
-namespace Hypernode\Magento\Command\System\Patches;
+namespace Hypernode\Magento\Command\Hypernode\Patches;
 
 use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * Class ListCommandTest
+ * @package Hypernode\Magento\Command\Hypernode\Patches
+ */
 class ListCommandTest extends TestCase
 {
 
@@ -20,20 +32,13 @@ class ListCommandTest extends TestCase
     public function getCommand()
     {
         return $this->getApplication()
-                ->find('sys:patches:list');
+                ->find('hypernode:patches:list');
     }
 
     public function testName()
     {
         $command = $this->getCommand();
-        $this->assertEquals('sys:patches:list', $command->getName());
-    }
-
-    public function testAliases()
-    {
-        // Backwards compatible
-        $command = $this->getCommand();
-        $this->assertArraySubset(['sys:info:patches'], $command->getAliases());
+        $this->assertEquals('hypernode:patches:list', $command->getName());
     }
 
     public function testOptions()
@@ -67,3 +72,4 @@ class ListCommandTest extends TestCase
     }
 
 }
+

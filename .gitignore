@@ -1,2 +1,21 @@
+# Ignore file for Hypernode Magerun addons.
+
+# Various IDE OS files that should never be committed
+.DS_Store
+*.swp
+*.lock
+__MACOSX
+.idea
+/nbproject/*
+.project
+.buildpath
+.thumbs
+Thumbs.db
+.settings
+/_notes/*
+
+# Repository specifics
 /vendor/
-/.idea/
+/htdocs
+/coverage.txt
+/phpunit.xml
