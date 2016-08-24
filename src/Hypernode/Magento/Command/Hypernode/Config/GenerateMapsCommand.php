@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
+ */
 namespace Hypernode\Magento\Command\Hypernode\Config;
 
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
@@ -8,6 +15,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\Question;
 
+/**
+ * Class GenerateMapsCommand
+ * @package Hypernode\Magento\Command\Hypernode\Config
+ */
 class GenerateMapsCommand extends AbstractHypernodeCommand
 {
 
