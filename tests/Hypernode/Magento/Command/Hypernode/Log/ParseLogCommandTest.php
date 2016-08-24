@@ -11,6 +11,7 @@
 namespace Hypernode\Magento\Command\Hypernode\Config;
 
 use Hypernode\Curl;
+use Hypernode\Magento\Command\Hypernode\Log\ParseLogCommand;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -24,7 +25,7 @@ class ParseLogCommandTest extends TestCase
     public function setUp()
     {
         $application = $this->getApplication();
-        $command = new GenerateMapsCommand();
+        $command = new ParseLogCommand();
 
         $application->add($command);
     }
