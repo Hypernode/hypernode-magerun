@@ -1,4 +1,12 @@
 <?php
+/**
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
+ */
 
 namespace Hypernode\Magento\Command\Hypernode\Patches;
 
@@ -8,6 +16,10 @@ use Symfony\Component\Console\Input\InputOption;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class ListCommand
+ * @package Hypernode\Magento\Command\Hypernode\Patches
+ */
 class ListCommand extends AbstractHypernodeCommand
 {
     const HYPERNODE_PATCH_TOOL_URL = 'https://tools.hypernode.com/patches/';

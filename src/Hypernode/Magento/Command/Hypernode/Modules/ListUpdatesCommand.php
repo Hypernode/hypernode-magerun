@@ -1,4 +1,12 @@
 <?php
+/**
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
+ */
 
 namespace Hypernode\Magento\Command\Hypernode\Modules;
 
@@ -10,6 +18,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\TableSeparator;
 use N98\Magento\Modules;
 
+/**
+ * Class ListUpdatesCommand
+ * @package Hypernode\Magento\Command\Hypernode\Modules
+ */
 class ListUpdatesCommand extends AbstractHypernodeCommand
 {
     const TOOLS_HYPERNODE_MODULE_URL = 'https://tools.hypernode.com/modules/magerun.json';

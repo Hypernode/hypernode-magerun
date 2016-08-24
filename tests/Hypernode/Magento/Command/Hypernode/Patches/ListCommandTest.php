@@ -1,4 +1,12 @@
 <?php
+/**
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
+ */
 
 namespace Hypernode\Magento\Command\Hypernode\Patches;
 
@@ -6,6 +14,10 @@ use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * Class ListCommandTest
+ * @package Hypernode\Magento\Command\Hypernode\Patches
+ */
 class ListCommandTest extends TestCase
 {
 
@@ -27,12 +39,6 @@ class ListCommandTest extends TestCase
     {
         $command = $this->getCommand();
         $this->assertEquals('hypernode:patches:list', $command->getName());
-    }
-
-    public function testAliases()
-    {
-        $command = $this->getCommand();
-        $this->assertArraySubset([], $command->getAliases());
     }
 
     public function testOptions()
