@@ -27,7 +27,7 @@ use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
  * Class CacheWarmerCommand
  * @package Hypernode\Magento\Command\Performance
  */
-class CacheWarmerCommand extends AbstractHypernodeCommand
+class PerformanceCommand extends AbstractHypernodeCommand
 {
 
     protected $_options;
@@ -42,8 +42,8 @@ class CacheWarmerCommand extends AbstractHypernodeCommand
     protected function configure()
     {
         $this
-            ->setName('hypernode:cachewarmer')
-            ->setDescription('Generate a performance report based on sitemaps. [Hypernode]')
+            ->setName('hypernode:performance')
+            ->setDescription('Generate a performance report based on sitemaps.')
             ->addOption('sitemap', null, InputOption::VALUE_OPTIONAL, '(string) path or URL.', false)
             ->addOption('current-url', null, InputOption::VALUE_OPTIONAL, 'Url of current instance. (needle for replacement)', false)
             ->addOption('compare-url', null, InputOption::VALUE_OPTIONAL, 'The URL to compare with.', false)
