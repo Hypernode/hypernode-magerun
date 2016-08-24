@@ -1,6 +1,14 @@
 <?php
+/**
+ * Byte Hypernode Magerun
+ *
+ * @package     hypernode-Magerun
+ * @author      Byte
+ * @copyright   Copyright (c) 2016 Byte
+ * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
+ */
 
-namespace Hypernode\Magento\Command\System\Modules;
+namespace Hypernode\Magento\Command\Hypernode\Modules;
 
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
@@ -10,6 +18,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\TableSeparator;
 use N98\Magento\Modules;
 
+/**
+ * Class ListUpdatesCommand
+ * @package Hypernode\Magento\Command\Hypernode\Modules
+ */
 class ListUpdatesCommand extends AbstractHypernodeCommand
 {
     const TOOLS_HYPERNODE_MODULE_URL = 'https://tools.hypernode.com/modules/magerun.json';
@@ -17,11 +29,11 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
     protected function configure()
     {
         $this
-            ->setName('sys:modules:list-updates')
+            ->setName('hypernode:modules:list-updates')
             ->addOption('codepool', null, InputOption::VALUE_OPTIONAL, 'Show modules in a specific codepool')
             ->addOption('status', null, InputOption::VALUE_OPTIONAL, 'Show modules with a specific status')
             ->addOption('vendor', null, InputOption::VALUE_OPTIONAL, 'Show modules of a specified vendor')
-            ->setDescription('Find available updates for installed modules [Hypernode]')
+            ->setDescription('Find available updates for installed modules.')
             ->addOption(
                 'format',
                 null,
@@ -136,3 +148,4 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
     }
 
 }
+
