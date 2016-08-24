@@ -72,3 +72,4 @@ class ListCommandTest extends TestCase
     }
 
 }
+

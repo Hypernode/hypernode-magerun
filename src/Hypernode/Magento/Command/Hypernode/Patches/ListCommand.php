@@ -135,5 +135,5 @@ class ListCommand extends AbstractHypernodeCommand
         }
         $ioAdapter->streamClose();
     }
-
 }
+

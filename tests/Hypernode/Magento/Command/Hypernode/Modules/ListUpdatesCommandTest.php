@@ -93,3 +93,4 @@ class ListUpdatesCommandTest extends TestCase
     }
 
 }
+

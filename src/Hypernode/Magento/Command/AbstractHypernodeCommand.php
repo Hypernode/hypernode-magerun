@@ -42,4 +42,3 @@ abstract class AbstractHypernodeCommand extends AbstractMagentoCommand
 
 }
 
-

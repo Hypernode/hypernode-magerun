@@ -68,3 +68,4 @@ class GenerateMapsCommandTest extends TestCase
     }
 
 }
+

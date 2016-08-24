@@ -148,3 +148,4 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
     }
 
 }
+
