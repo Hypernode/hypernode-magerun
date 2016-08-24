@@ -16,8 +16,6 @@ Thumbs.db
 
 # Repository specifics
 /vendor/
-/composer.lock
 /htdocs
 /coverage.txt
 /phpunit.xml
-
