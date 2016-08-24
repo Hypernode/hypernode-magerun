@@ -8,10 +8,9 @@
  * @license     http://opensource.org/licenses/osl-3.0.php Open Software License 3.0 (OSL-3.0)
  */
 
-namespace Hypernode\Magento\Command\Hypernode\Config;
+namespace Hypernode\Magento\Command\Hypernode\Log;
 
 use Hypernode\Curl;
-use Hypernode\Magento\Command\Hypernode\Log\ParseLogCommand;
 use N98\Magento\Command\PHPUnit\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 

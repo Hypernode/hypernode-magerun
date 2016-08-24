@@ -6,4 +6,6 @@ commands:
     - Hypernode\Magento\Command\Hypernode\Config\GenerateMapsCommand
     - Hypernode\Magento\Command\Hypernode\Modules\ListUpdatesCommand
     - Hypernode\Magento\Command\Hypernode\Patches\ListCommand
+    - Hypernode\Magento\Command\Hypernode\Varnish\ConfigSaveCommand
+    - Hypernode\Magento\Command\Hypernode\Varnish\VarnishFlushCommand
     - Hypernode\Magento\Command\Hypernode\Log\ParseLogCommand
