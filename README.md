@@ -29,7 +29,7 @@ Commands
 
 Example usage:
 
-        n98-magerun sys:modules:list-updates
+        n98-magerun hypernode:modules:list-updates
 
 ![n98-magerun sys:modules:list-updates](https://cloud.githubusercontent.com/assets/431360/12973661/3d7842ec-d0ae-11e5-9ebb-40da2ceac3e3.png)
 
@@ -37,17 +37,48 @@ See if newer versions exist for your currently installed Magento 1 modules (loca
 
 This tool is a crowdsourced initiative: it will report the latest version of any module as seen in the wild. This does not necessarily mean a newer version is publicly available, just that it exists.
 
-As of Feb 2016, it contains version information from about 500 installations.
+As of Feb 2016, it contains version information of over 500 installations.
 
 ### Determine required patches ###
 
-        n98-magerun sys:info:patches
+        n98-magerun hypernode:patches:list
 
 ![n98-magerun sys:info:patches](https://cloud.githubusercontent.com/assets/431360/12973660/3d77a648-d0ae-11e5-8a74-ddefb0e90d81.png)
 
 John Knowles maintains an [excellent spreadsheet](https://docs.google.com/spreadsheets/d/1MTbU9Bq130zrrsJwLIB9d8qnGfYZnkm4jBlfNaBF19M/pubhtml?widget=true) which links Magento versions with required patches.
 
-Running this command will show you which patches you need for the current Magento version and which are already installed.
+Running this command will show you which patches you need for the current Magento version and which are already installed. Note that if a patch is installed and not listed in the `app/etc/applied.patches.list` a false positive may be the result.
+
+### Get a (system).log analyses of the most frequent lines ###
+
+	n98-magerun hypernode:log-analyses
+	
+Quickly reference the most common lines in the log file ordered by frequency.
+
+### Generate a boilerplate for Nginx http.magerunmaps ###
+
+	n98-magerun hypernode:maps-generate
+	
+Outputs or saves a http.magerunmaps boilerplate containing your store setup for Nginx. Refer to the [Hypernode Nginx documentation.](https://support.hypernode.com/knowledgebase/how-to-use-nginx/)
+	
+### Varnish config ###
+
+	n98-magerun hypernode:varnish:config-save
+	
+Fetches the VCL configuration from turpentine and applies it. Make sure [turpentine is installed and configured](https://support.hypernode.com/knowledgebase/varnish-on-hypernode/) correctly.
+
+### Flush all URL's in Varnish cache ###
+
+	n98-magerun hypernode:varnish:flush
+	
+Flush all URL's that were cached by varnish.
+
+### Performance reporting ###
+
+	n98-magerun hypernode:performance
+	
+By default this command loads Magento's sitemap collection from which you can choose what sitemaps you want to crawl. If the store URL does not match the URL's in the sitemap you will be prompted several options (compare, replace, continue). For instance the old and new URL can be compared in a performance report. Additionally a sitemap can be loaded by specifying a path or URL. 
+
 
 Credits due where credits due
 --------
