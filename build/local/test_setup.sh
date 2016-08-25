@@ -95,11 +95,11 @@ ensure_magento() {
 
 test_setup_basename="n98-magerun"
 test_setup_magerun_cmd="bin/${test_setup_basename}"
-test_setup_directory="./magento/www"
+test_setup_directory="./htdocs"
 test_setup_db_host="127.0.0.1"
 test_setup_db_port="${test_setup_db_port:-3306}"
 test_setup_db_user="root"
-test_setup_db_pass=""
+test_setup_db_pass="root"
 test_setup_db_name="magento_magerun_test"
 
 if [ "" != "$(installed_version)" ]; then
@@ -107,7 +107,7 @@ if [ "" != "$(installed_version)" ]; then
 else
     ensure_environment
     ensure_mysql_db
-    ensure_magento "magento-mirror-1.9.2.3"
+    ensure_magento "magento-mirror-1.9.2.4"
 fi
 
 buildecho "export N98_MAGERUN_TEST_MAGENTO_ROOT='${test_setup_directory}'"
