@@ -1,9 +1,13 @@
 Hypernode Magerun Addons
 ==============
 
-[![Build Status](https://travis-ci.org/frosit/hypernode-magerun.svg?branch=master)](https://travis-ci.org/frosit/hypernode-magerun)
+
 
 Some additional commands for the excellent N98-magerun Magento command-line tool.
+
+| Master  |  [![Build Status](https://travis-ci.org/frosit/hypernode-magerun.svg?branch=master)](https://travis-ci.org/frosit/hypernode-magerun) |
+|------------|-------------------------------------------------|
+| Staging  | [![Build Status](https://travis-ci.org/frosit/hypernode-magerun.svg?branch=staging)](https://travis-ci.org/frosit/hypernode-magerun)  |
 
 Installation
 ------------
