@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+/* @var $application \N98\Magento\Application */
+$application = require __DIR__.'/../vendor/n98/magerun/src/bootstrap.php';
+$application->run();
+
+__halt_compiler();
