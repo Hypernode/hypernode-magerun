@@ -1,0 +1,11 @@
+magerun-hypernode (20160920.1231) precise; urgency=medium
+
+  * Upstream release
+
+ -- Willem de Groot <willem@byte.nl>  Tue, 20 Sep 2016 12:31:52 +0200
+
+magerun-hypernode (1.0-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Willem de Groot <willem@byte.nl>  Tue, 20 Sep 2016 10:28:34 +0200

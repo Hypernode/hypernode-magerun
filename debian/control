@@ -1,0 +1,16 @@
+Source: magerun-hypernode
+Priority: optional
+Maintainer: Willem de Groot <willem@byte.nl>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.4
+Section: libs
+Homepage: https://github.com/Hypernode/hypernode-magerun
+Vcs-Git: git@github.com:Hypernode/hypernode-magerun.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/hypernode-magerun.git;a=summary
+
+Package: magerun-hypernode
+Section: libs
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Magerun modules installed on the Hypernode platform
+ Contains, a.o. the hypernode:* and elgentos:* modules.
