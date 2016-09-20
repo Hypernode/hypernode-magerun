@@ -17,5 +17,6 @@ Thumbs.db
 # Repository specifics
 /vendor/
 /htdocs
-/coverage.txt
+/coverage*
 /phpunit.xml
+/apidocs
