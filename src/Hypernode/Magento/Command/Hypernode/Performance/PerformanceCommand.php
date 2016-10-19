@@ -47,7 +47,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
             ->addOption('sitemap', null, InputOption::VALUE_OPTIONAL, '(string) path or URL.', false)
             ->addOption('current-url', null, InputOption::VALUE_OPTIONAL, 'Url of current instance. (needle for replacement)', false)
             ->addOption('compare-url', null, InputOption::VALUE_OPTIONAL, 'The URL to compare with.', false)
-            ->addOption('silent', null, InputOption::VALUE_OPTIONAL, 'Disables all messages, outputs results in JSON.', false)
+            ->addOption('silent', null, InputOption::VALUE_NONE, 'Disables all messages, outputs results in JSON.', null)
             ->addOption('format', null, InputOption::VALUE_OPTIONAL, 'Format for file output result [' . implode(',', RendererFactory::getFormats()) . '] (default console table)', false)
             ->addOption('limit', null, InputOption::VALUE_OPTIONAL, 'Limits the amount of requests to curl.', false)
             ->addOption('totaltime', null, InputOption::VALUE_NONE, 'Measure total time instead of TTFB. Note: TTFB labels are not adjusted.');
@@ -77,15 +77,20 @@ class PerformanceCommand extends AbstractHypernodeCommand
         }
 
         // get sitemaps to process
-        if (!$this->_options['sitemap']) {
+        if (!$this->_options['sitemap'] && !$this->_options['silent']) {
             $this->_sitemaps = $this->askSitemapsToProcess($input, $output);
         } else {
-            $sitemapFromInput = $this->getSitemapFromInput($this->_options);
-            if (!$sitemapFromInput && !$this->_options['silent']) {
-                $output->writeln('<error>Could not fetch specified sitemap: ' . $this->_options['sitemap'] . '</error>');
+	    if ($this->_options['silent']) {
+	        $this->_sitemaps = $this->retrieveSitemaps();
             } else {
-                $this->_sitemaps = $sitemapFromInput;
+                $sitemapFromInput = $this->getSitemapFromInput($this->_options);
+                if (!$sitemapFromInput) {
+                    $output->writeln('<error>Could not fetch specified sitemap: ' . $this->_options['sitemap'] . '</error>');
+                } else {
+                    $this->_sitemaps = $sitemapFromInput;
+                }
             }
+         
         }
 
         // prepare the requests
@@ -700,6 +705,17 @@ class PerformanceCommand extends AbstractHypernodeCommand
     }
 
     /**
+     * Retrieve the sitemapCollection
+     * @return array
+     */
+    protected function retrieveSitemaps()
+    {
+        $sitemaps = array();
+        $sitemapCollection = $this->getStoreSitemaps();
+        return $sitemapCollection;
+    }
+
+    /**
      * Asks the user which sitemaps from Magento's sitemap collection to process.
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -707,8 +723,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
      */
     protected function askSitemapsToProcess(InputInterface $input, OutputInterface $output)
     {
-        $sitemaps = array();
-        $sitemapCollection = $this->getStoreSitemaps();
+        $sitemapCollection = $this->retrieveSitemaps();
 
         if (!$sitemapCollection) {
             $output->writeln('<error>There are no sitemaps defined in Magento\'s sitemap collection.</error>');
