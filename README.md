@@ -86,6 +86,22 @@ Flush all URL's that were cached by varnish.
 By default this command loads Magento's sitemap collection from which you can choose what sitemaps you want to crawl. If the store URL does not match the URL's in the sitemap you will be prompted several options (compare, replace, continue). For instance the old and new URL can be compared in a performance report. Additionally a sitemap can be loaded by specifying a path or URL. 
 
 
+Packaging
+--------
+
+For development/testing (build package of your feature branch):
+```
+gbp buildpackage --git-pbuilder --git-dist=precise --git-arch=amd64
+```
+
+Building a .deb for release:
+```
+./build.sh
+```
+
+Then if everything is alright, upload the new version to your repository with something like [dput](http://manpages.ubuntu.com/manpages/precise/man1/dput.1.html)
+
+
 Credits due where credits due
 --------
 
