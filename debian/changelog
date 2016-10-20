@@ -1,3 +1,9 @@
+magerun-hypernode (20161020.121830) xenial; urgency=medium
+
+  * Added build script
+
+ -- Rick van de Loo <vdloo@workstation4>  Thu, 20 Oct 2016 12:18:30 +0200
+
 magerun-hypernode (20161020.103357) xenial; urgency=medium
 
   * Autodetect sitemap in ttfb script if no specified in silent mode
