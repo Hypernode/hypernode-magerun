@@ -80,7 +80,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
         if (!$this->_options['sitemap'] && !$this->_options['silent']) {
             $this->_sitemaps = $this->askSitemapsToProcess($input, $output);
         } else {
-	    if ($this->_options['silent']) {
+	    if (!$this->_options['sitemap'] && $this->_options['silent']) {
 	        $this->_sitemaps = $this->retrieveSitemaps();
             } else {
                 $sitemapFromInput = $this->getSitemapFromInput($this->_options);
