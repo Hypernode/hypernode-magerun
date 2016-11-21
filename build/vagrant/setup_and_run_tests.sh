@@ -25,8 +25,8 @@ fi;
 set -e
 
 # Run the unit tests
-echo "Note: hypernode-vagrant does not support Xdebug at this moment."
-echo -e "Tests that require Xdebug will be skipped\n"
+target_directory="${SETUP_DIR:-./}${MAGENTO_VERSION}"
+export N98_MAGERUN_TEST_MAGENTO_ROOT="${target_directory}"
 vendor/bin/phpunit --debug --stop-on-error --stop-on-failure
 
 # If something is not OK we would have errored out before here
