@@ -148,6 +148,10 @@ class PerformanceCommand extends AbstractHypernodeCommand
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        # Identify as a known crawler so we don't bypass the Varnish cache on shops with magento-turpentine 0.1.6 or later
+        # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/CHANGELOG.md#release-016
+        # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/app/code/community/Nexcessnet/Turpentine/etc/config.xml#L66
+        curl_setopt($ch, CURLOPT_USERAGENT, "ApacheBench/2.3");
         curl_exec($ch);
         return curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     }
@@ -388,6 +392,10 @@ class PerformanceCommand extends AbstractHypernodeCommand
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        # Identify as a known crawler so we don't bypass the Varnish cache on shops with magento-turpentine 0.1.6 or later
+        # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/CHANGELOG.md#release-016
+        # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/app/code/community/Nexcessnet/Turpentine/etc/config.xml#L66
+        curl_setopt($ch, CURLOPT_USERAGENT, "ApacheBench/2.3");
         curl_exec($ch);
 
         $result['url'] = $url;
