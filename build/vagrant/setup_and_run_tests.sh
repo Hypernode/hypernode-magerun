@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 export DB=mysql
-export MAGENTO_VERSION="magento-mirror-1.9.2.4"
+export MAGENTO_VERSION="magento-mirror-1.9.3.0"
 export INSTALL_SAMPLE_DATA=no
 export LINTSH=1
 export SETUP_DB_USER='app'
