@@ -132,12 +132,23 @@ class ListUpdatesCommandTest extends TestCase
                     'name' => 'Mage_Catalog',
                 ],
                 [
-                    'latest' => '0.2',
-                    'current' => '0.2',
-                    'name' => 'Cm_RedisSession',
+                    'latest' => '1.6.0.0',
+                    'current' => '1.6.0.0',
+                    'name' => 'Phoenix_Moneybookers',
                 ]
             ]
         ]);
+
+        // disable module
+        $disableCommand = $this->getApplication()->find('dev:module:disable');
+
+        $disableExecute = new CommandTester($disableCommand);
+
+        $disableExecute->execute(array(
+            'command' => $disableCommand->getName(),
+            '--codepool' => 'community',
+            'moduleName' => 'Phoenix_Moneybookers'
+        ));
 
         // Set mock
         $command->setCurl($curl);
