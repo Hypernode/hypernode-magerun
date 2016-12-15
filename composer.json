@@ -5,6 +5,7 @@
     "magerun"
   ],
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "homepage": "https://github.com/Hypernode/hypernode-magerun",
   "license": "MIT",
   "authors": [
@@ -28,16 +29,21 @@
     }
   ],
   "require": {
-    "magento-hackathon/magento-composer-installer": "^3.0.0",
     "php": ">=5.3"
   },
   "require-dev": {
+    "magento-hackathon/magento-composer-installer": "^3.0.0",
     "phpunit/phpunit": "~4.8",
-    "n98/magerun": "dev-develop"
+    "n98/magerun": "1.97.22"
   },
   "autoload": {
     "psr-0": {
       "Hypernode": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-0": {
+      "Hypernode": "tests/"
     }
   },
   "extra": {
