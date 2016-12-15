@@ -38,44 +38,38 @@ class GenerateMapsCommand extends AbstractHypernodeCommand
             return;
         }
 
-        $helper = $this->getHelper('question');
-        $question = new Question('<question>Save the maps to [default: http.magerunmaps]: </question>', 'http.magerunmaps');
+        $this->writeSection($output, 'Mage run maps for Nginx. [Byte Hypernode]');
 
         $defaultStoreFront = \Mage::app()->getDefaultStoreView()->getCode();
+
         $map = 'map $host $storecode {';
         $map .= "\n hostnames; \n";
         $map .= "default " . $defaultStoreFront . ";\n";
 
         foreach (\Mage::app()->getStores() as $store) {
-            $map .= "." . parse_url(\Mage::getStoreConfig('web/unsecure/base_url', $store))['host'] . " " . $store->getCode() . "; \n";
-            $table[$store->getId()] = array(
-                $store->getId(),
-                $store->getCode(),
-                \Mage::getStoreConfig('web/unsecure/base_url', $store),
-                \Mage::getStoreConfig('web/secure/base_url', $store),
-            );
+            $map .= '.' . str_replace('www.', '', parse_url(\Mage::getStoreConfig('web/unsecure/base_url', $store))['host']) . " " . $store->getCode() . "; \n";
         }
 
         $map .= "}";
 
+        $output->writeln($map); // output it always
+
         if ($input->getOption('save')) {
+
+            $helper = $this->getHelper('question');
+            $question = new Question('<question>File name / location (relative from Magento): [default: http.magerunmaps]: </question>', 'http.magerunmaps');
             $filename = $helper->ask($input, $output, $question);
-            if ($filename && !file_exists($filename)) {
+
+            if (($filename = $this->_magentoRootFolder . DS . $filename) && !file_exists($filename)) {
                 if (file_put_contents($filename, $map)) {
-                    $output->writeln('<info>Succesfully written maps to ' . $filename . '</info>');
+                    $output->writeln('<info>Successfully wrote Nginx maps to <comment>' . $filename . '</comment></info>');
                 } else {
                     $output->writeln("<error>There was an issue writing to " . $filename . ".</error>");
                 }
             } else {
-                $output->writeln('<info>File already exists, outputting it.</info>');
-                $this->writeSection($output, 'Mage run maps for Nginx. [Byte Hypernode]');
-                $output->writeln($map);
+                $output->writeln('<info>File already exists.</info>');
             }
-        } else {
-            $this->writeSection($output, 'Mage run maps for Nginx. [Byte Hypernode]');
-            $output->writeln($map);
         }
-
     }
-
 }
+

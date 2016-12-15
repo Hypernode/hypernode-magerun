@@ -54,7 +54,6 @@ class GenerateMapsCommandTest extends TestCase
                 ->getOption('save')->getName());
     }
 
-
     public function testExecute()
     {
         $command = $this->getCommand();
@@ -65,6 +64,7 @@ class GenerateMapsCommandTest extends TestCase
         $result = $commandTester->getDisplay();
 
         $this->assertRegExp('/^(.*?(Mage run maps for Nginx. \[Byte Hypernode\] )[^$]*)$/m',$result);
+        $this->assertNotContains('www.',$result);
     }
 
 }
