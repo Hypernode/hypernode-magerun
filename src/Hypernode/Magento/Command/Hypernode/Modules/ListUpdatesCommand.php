@@ -39,7 +39,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
                 'format',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'Output Format. One of ['.implode(',', RendererFactory::getFormats()).']'
+                'Output Format. One of [' . implode(',', RendererFactory::getFormats()) . ']'
             );
     }
 
@@ -114,7 +114,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
 
 
         } catch (\Exception $e) {
-            $output->writeln('<error>Could not fetch data from Hypernode platform; '.$e->getMessage().'</error>');
+            $output->writeln('<error>Could not fetch data from Hypernode platform; ' . $e->getMessage() . '</error>');
             exit(1);
         }
 
@@ -133,7 +133,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
 
             // inactive / active filtering
             if ($tableInfo['Status'] === 'inactive' && $doFormat && !$onlyActive) {
-                $tableInfo['Name'] = '<error>'.$tableInfo['Name'].' (inactive)</error>';
+                $tableInfo['Name'] = '<error>' . $tableInfo['Name'] . ' (inactive)</error>';
             } elseif ($onlyActive && $tableInfo['Status'] === 'inactive') {
                 continue;
             }
@@ -149,7 +149,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             $hasUpdate = $tableInfo['current'] !== $tableInfo['latest'];
 
             if ($doFormat) {
-                $update[] = ($hasUpdate ? '<comment>Yes</comment>' : '<info>No</info>').'';
+                $update[] = ($hasUpdate ? '<comment>Yes</comment>' : '<info>No</info>') . '';
             } else {
                 $update[] = ($hasUpdate ? 'Yes' : 'No');
             }
@@ -161,7 +161,12 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             }
         }
 
-        $rows = array_merge($rowsLatest, array(new TableSeparator()), $rowsUpdates);
+        // do not show empty row if there are no updates
+        if (count($rowsUpdates) < 1) {
+            $rows = $rowsLatest;
+        } else {
+            $rows = array_merge($rowsLatest, array(new TableSeparator()), $rowsUpdates);
+        }
 
         $this->getHelper('table')
             ->setHeaders(
@@ -192,7 +197,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
 
         if (file_exists($moduleDir)) {
 
-            $configFile = $moduleDir.DIRECTORY_SEPARATOR.'config.xml';
+            $configFile = $moduleDir . DIRECTORY_SEPARATOR . 'config.xml';
 
             if ($xml = file_get_contents($configFile)) {
 
