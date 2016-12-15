@@ -1,3 +1,22 @@
+magerun-hypernode (20161215.144445) xenial; urgency=medium
+
+  [ Rick van de Loo ]
+  * add runtests.sh to run tests without setup
+  * runtests tests xdebug dependent tests
+  * test 1.9.3.0
+  * use Apachebench ua for crawling
+  * remove 1.9.3.* test, pin magerun to old version
+
+  [ Fabio Ros ]
+  * minimal fix and improvements
+  * adding lock to prevent this problem in the future
+  * fix composer and travis
+  * workaround to test latest Magento (1.9.3.1)
+  * remove double measure to lock one dependency
+
+
+ -- Rick van de Loo <vdloo@workstation4>  Thu, 15 Dec 2016 14:44:47 +0100
+
 magerun-hypernode (20161021.164510) xenial; urgency=medium
 
   * fix broken silent sitemap
