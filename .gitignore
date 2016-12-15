@@ -20,5 +20,3 @@ Thumbs.db
 /coverage*
 /phpunit.xml
 /apidocs
-
-!/composer.lock
