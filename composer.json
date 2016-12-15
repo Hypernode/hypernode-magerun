@@ -32,7 +32,6 @@
     "php": ">=5.3"
   },
   "require-dev": {
-    "magento-hackathon/magento-composer-installer": "^3.0.0",
     "phpunit/phpunit": "~4.8",
     "n98/magerun": "1.97.22"
   },
