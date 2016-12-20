@@ -8,9 +8,6 @@ export SETUP_DB_USER='app'
 export SETUP_DB_PASS=$(grep password ~/.my.cnf | cut -d'=' -f2 | xargs)
 export SETUP_DIR='/data/web/'
 
-# correct the magento-root-dir in the composer.json to match Hypernode's docroot
-sed -i 's/"magento-root-dir": "htdocs"/"magento-root-dir": "\/data\/web\/public\/'"$MAGENTO_VERSION"'"/g' composer.json
-
 composer config -g repositories.firegento composer https://packages.firegento.com
 composer install --prefer-source --no-interaction --ignore-platform-reqs
 bash /data/web/public/build/travis/before_script.sh
