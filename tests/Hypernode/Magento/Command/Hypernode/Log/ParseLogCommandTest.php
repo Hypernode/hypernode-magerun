@@ -10,7 +10,6 @@
 
 namespace Hypernode\Magento\Command\Hypernode\Log;
 
-use Hypernode\Curl;
 use N98\Magento\Command\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
