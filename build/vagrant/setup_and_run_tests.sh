@@ -21,8 +21,19 @@ if [ $? -ne 1 ]; then
 fi;
 set -e
 
-# Run the unit tests
+
 target_directory="${SETUP_DIR:-./}${MAGENTO_VERSION}"
+test_stopfile=".n98-magerun"
+
+# create stopfile if it does not yet exists
+if [ ! -f "${test_stopfile}" ]; then
+    echo "${target_directory}" > "${test_stopfile}"
+    buildecho "stopfile ${test_stopfile} created: $(cat "${test_stopfile}")"
+else
+    buildecho "stopfile ${test_stopfile} exists: $(cat "${test_stopfile}")"
+fi
+
+# Export environment variables and run tests
 export N98_MAGERUN_TEST_MAGENTO_ROOT="${target_directory}"
 vendor/bin/phpunit --debug --stop-on-error --stop-on-failure
 
