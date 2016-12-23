@@ -12,6 +12,7 @@ namespace Hypernode\Magento\Command\Hypernode\Modules;
 
 use Hypernode\Curl;
 use N98\Magento\Command\PHPUnit\TestCase;
+use N98\Magento\Modules;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -21,9 +22,16 @@ use Symfony\Component\Console\Tester\CommandTester;
 class ListUpdatesCommandTest extends TestCase
 {
 
+    /**
+     * @var Modules $modules
+     */
+    public $modules;
+
     public function setUp()
     {
+        $this->modules = new Modules();
         $application = $this->getApplication();
+        /** @var ListUpdatesCommand $command */
         $command = new ListUpdatesCommand();
 
         $application->add($command);
@@ -32,7 +40,13 @@ class ListUpdatesCommandTest extends TestCase
     public function getCommand()
     {
         return $this->getApplication()
-                ->find('hypernode:modules:list-updates');
+            ->find('hypernode:modules:list-updates');
+    }
+
+    public function testModules()
+    {
+        $modules = $this->modules;
+        $this->assertInstanceOf(Modules::class, $modules);
     }
 
     public function testName()
@@ -45,13 +59,15 @@ class ListUpdatesCommandTest extends TestCase
     {
         $command = $this->getCommand();
         $this->assertEquals('codepool', $command->getDefinition()
-                ->getOption('codepool')->getName());
+            ->getOption('codepool')->getName());
         $this->assertEquals('status', $command->getDefinition()
-                ->getOption('status')->getName());
+            ->getOption('status')->getName());
         $this->assertEquals('vendor', $command->getDefinition()
-                ->getOption('vendor')->getName());
+            ->getOption('vendor')->getName());
+        $this->assertEquals('only-active', $command->getDefinition()
+            ->getOption('only-active')->getName());
         $this->assertEquals('format', $command->getDefinition()
-                ->getOption('format')->getName());
+            ->getOption('format')->getName());
     }
 
 
@@ -62,22 +78,22 @@ class ListUpdatesCommandTest extends TestCase
         $curl = $this->getMock(Curl::class, ['post']);
 
         $curl->expects($this->once())
-                ->method('post')
-                ->with($this->equalTo($command::TOOLS_HYPERNODE_MODULE_URL));
+            ->method('post')
+            ->with($this->equalTo($command::TOOLS_HYPERNODE_MODULE_URL));
 
         $curl->response = json_encode([
-                'versions' => [
-                        [
-                            'latest' => '1.2.3',
-                            'current' => '0.0.0',
-                            'name' => 'Mage_Core',
-                        ],
-                        [
-                            'latest' => '1.2.3',
-                            'current' => '1.2.3',
-                            'name' => 'Mage_Catalog',
-                        ]
+            'versions' => [
+                [
+                    'latest' => '1.2.3',
+                    'current' => '0.0.0',
+                    'name' => 'Mage_Core',
+                ],
+                [
+                    'latest' => '1.2.3',
+                    'current' => '1.2.3',
+                    'name' => 'Mage_Catalog',
                 ]
+            ]
         ]);
 
         // Set mock
@@ -90,6 +106,64 @@ class ListUpdatesCommandTest extends TestCase
 
         $this->assertRegExp('/Mage_Core.*Yes/', $result);
         $this->assertRegExp('/Mage_Catalog.*No/', $result);
+    }
+
+    public function testOnlyActive()
+    {
+
+        $command = $this->getCommand();
+
+        $curl = $this->getMock(Curl::class, ['post']);
+
+        $curl->expects($this->once())
+            ->method('post')
+            ->with($this->equalTo($command::TOOLS_HYPERNODE_MODULE_URL));
+
+        $curl->response = json_encode([
+            'versions' => [
+                [
+                    'latest' => '1.2.3',
+                    'current' => '0.0.0',
+                    'name' => 'Mage_Core',
+                ],
+                [
+                    'latest' => '1.2.3',
+                    'current' => '1.2.3',
+                    'name' => 'Mage_Catalog',
+                ],
+                [
+                    'latest' => '1.6.0.0',
+                    'current' => '1.6.0.0',
+                    'name' => 'Phoenix_Moneybookers',
+                ]
+            ]
+        ]);
+
+        // disable module
+        $disableCommand = $this->getApplication()->find('dev:module:disable');
+
+        $disableExecute = new CommandTester($disableCommand);
+
+        $disableExecute->execute(array(
+            'command' => $disableCommand->getName(),
+            '--codepool' => 'community',
+            'moduleName' => 'Phoenix_Moneybookers'
+        ));
+
+        // Set mock
+        $command->setCurl($curl);
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(
+            array(
+                'command' => $command->getName(),
+                '--only-active' => true,
+            )
+        );
+
+        $result = $commandTester->getDisplay();
+
+        $this->assertNotContains('(inactive)', $result);
     }
 
 }
