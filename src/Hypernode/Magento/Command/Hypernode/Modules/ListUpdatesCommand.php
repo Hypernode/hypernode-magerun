@@ -68,7 +68,6 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             return;
         }
 
-        $onlyActive = $input->getOption('only-active') ? true : false;
         $modules = $this->getModules($input);
 
         if (!count($modules)) {
@@ -132,9 +131,9 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             $tableInfo = array_merge($module, $modulesInfo[$module['name']]);
 
             // inactive / active filtering
-            if ($tableInfo['Status'] === 'inactive' && $doFormat && !$onlyActive) {
+            if ($tableInfo['Status'] === 'inactive' && $doFormat && ! $input->getOption('only-active')) {
                 $tableInfo['Name'] = '<error>' . $tableInfo['Name'] . ' (inactive)</error>';
-            } elseif ($onlyActive && $tableInfo['Status'] === 'inactive') {
+            } elseif ($input->getOption('only-active') && $tableInfo['Status'] === 'inactive') {
                 continue;
             }
 
