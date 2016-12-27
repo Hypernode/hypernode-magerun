@@ -8,6 +8,12 @@ export SETUP_DB_USER='app'
 export SETUP_DB_PASS=$(grep password ~/.my.cnf | cut -d'=' -f2 | xargs)
 export SETUP_DIR='/data/web/'
 
+buildecho()
+{
+    echo -en "\e[1;44;97m[TEST-SETUP]\e[0m "
+    echo "${1}"
+}
+
 composer config -g repositories.firegento composer https://packages.firegento.com
 composer install --prefer-source --no-interaction --ignore-platform-reqs
 bash /data/web/public/build/travis/before_script.sh
