@@ -95,7 +95,7 @@ ensure_magento() {
 
 test_setup_basename="n98-magerun"
 test_setup_magerun_cmd="bin/${test_setup_basename}"
-test_setup_directory="./htdocs"
+test_setup_directory="./public"
 test_setup_db_host="127.0.0.1"
 test_setup_db_port="${test_setup_db_port:-3306}"
 test_setup_db_user="root"
@@ -108,6 +108,15 @@ else
     ensure_environment
     ensure_mysql_db
     ensure_magento "magento-mirror-1.9.2.4"
+fi
+
+# create stopfile if it does not yet exists
+test_stopfile=".${test_setup_basename}"
+if [ ! -f "${test_stopfile}" ]; then
+    echo "${test_setup_directory}" > "${test_stopfile}"
+    buildecho "stopfile ${test_stopfile} created: $(cat "${test_stopfile}")"
+else
+    buildecho "stopfile ${test_stopfile} exists: $(cat "${test_stopfile}")"
 fi
 
 buildecho "export N98_MAGERUN_TEST_MAGENTO_ROOT='${test_setup_directory}'"

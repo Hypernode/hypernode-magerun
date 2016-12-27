@@ -12,8 +12,8 @@
 
 namespace Hypernode\Magento\Command\Hypernode\Performance;
 
-use Hypernode\Curl;
-use N98\Magento\Command\PHPUnit\TestCase;
+
+use N98\Magento\Command\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
