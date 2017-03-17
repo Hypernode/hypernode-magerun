@@ -10,3 +10,11 @@ commands:
     - Hypernode\Magento\Command\Hypernode\Varnish\ConfigSaveCommand
     - Hypernode\Magento\Command\Hypernode\Varnish\VarnishFlushCommand
     - Hypernode\Magento\Command\Hypernode\Log\ParseLogCommand
+    - Hypernode\Magento\Command\Hypernode\Crack\AdminPasswordCommand
+    - Hypernode\Magento\Command\Hypernode\Crack\ApiKeyCommand
+
+passwordCracker:
+  rulesDirs:
+    - %module%/config/rules/
+  wordlistDirs:
+    - %module%/config/wordlists/

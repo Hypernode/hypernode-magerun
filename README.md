@@ -85,6 +85,17 @@ Flush all URL's that were cached by varnish.
 	
 By default this command loads Magento's sitemap collection from which you can choose what sitemaps you want to crawl. If the store URL does not match the URL's in the sitemap you will be prompted several options (compare, replace, continue). For instance the old and new URL can be compared in a performance report. Additionally a sitemap can be loaded by specifying a path or URL. 
 
+### Checking for weak admin credentials ###
+
+    n98-magerun hypernode:crack:admin-passwords -r best64 vendors
+
+Check your site for weak admin credentials by attempting to brute force the password with popular password / variations.
+
+### Checking for weak admin credentials ###
+
+    n98-magerun hypernode:crack:api-keys -r best64 vendors
+
+This command words exactly the same as the `hypernode:crack:admin-passwords` except it attempts to crack the api_key of SOAP / XML-RPC users. All arguments are the same, check the commands `--help` for details.
 
 Packaging
 --------
