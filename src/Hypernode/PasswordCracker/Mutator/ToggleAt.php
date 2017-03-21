@@ -29,7 +29,10 @@ class ToggleAt extends AbstractMutator
 
     public function mutate($input)
     {
-        $i = $this->getArg(1);
+        $i = $this->getPositionArg(1);
+        if (! $this->validatePosition($i, $input)) {
+            return $input;
+        }
         $l = $input[$i];
         $r = ($l === strtoupper($l) ? strtolower($l) : strtoupper($l));
 
