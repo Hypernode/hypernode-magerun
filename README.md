@@ -22,7 +22,7 @@ Here's the easiest:
 
 2. Clone the hypernode-magerun repository in there
 
-        cd ~/.n98-magerun/modules/ && git clone https://github.com/Hypernode/hypernode-magerun.git
+        git clone https://github.com/Hypernode/hypernode-magerun.git ~/.n98-magerun/modules/hypernode-magerun
 
 3. It should be installed. To see that it was installed, run magerun without any arguments to see if one of the new commands is in there.
 
