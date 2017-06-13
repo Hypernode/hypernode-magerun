@@ -86,8 +86,15 @@ class ListCommand extends AbstractHypernodeCommand
         foreach ($patchesList as $patchType => $patches) {
             foreach ($patches as $patch) {
 
+                // Force version postfix by passing through the formatter
+                $patchSplit = explode(' ', $patch);
+                $patchWithVersion = $this->_formatPatchName(
+                    $patchSplit[0],
+                    (isset($patchSplit[1]) ? $patchSplit[1] : null)
+                );
+
                 // Tell if patch is applied
-                $isApplied = isset($this->appliedPatches[$patch]);
+                $isApplied = isset($this->appliedPatches[$patchWithVersion]);
 
                 if ($isApplied && $doFormat) {
                     $applied = '<info>Yes</info>';
@@ -129,11 +136,56 @@ class ListCommand extends AbstractHypernodeCommand
         $ioAdapter->streamOpen($this->patchFile, 'r');
         while ($buffer = $ioAdapter->streamRead()) {
             if (stristr($buffer, '|')) {
-                list($date, $patch) = array_map('trim', explode('|', $buffer));
-                $this->appliedPatches[$patch] = true;
+                $patchInfo = array_map('trim', explode('|', $buffer));
+                $this->appliedPatches[$this->_formatPatchName($patchInfo[1], $patchInfo[3])] = true;
             }
         }
         $ioAdapter->streamClose();
+    }
+
+    /**
+     * Format the patch names taken from the patch list file or from the Hypernode API
+     *
+     * @param string $name Unformatted/inconsistent name
+     * @param null|string $version Optional version
+     * @return string Formatted name: "SUPEE-1234 v1.2"
+     */
+    protected function _formatPatchName($name, $version = null)
+    {
+        if (empty($version)) {
+            $version = 'v1';
+        }
+
+        /**
+         * Remove prefixed "PATCH_"
+         * @example "PATCH_SUPEE-9767_CE_1.7.0.2_v1.sh"
+         */
+        if (substr($name, 0, 5) === 'PATCH') {
+            $name = substr($name, 6);
+        }
+
+        /**
+         * Remove stuff following after SUPEE number starting with an underscore
+         * @example "SUPEE-6482_EE_1.13.0.2"
+         */
+        if (false !== strpos($name, '_')) {
+            $name = substr($name, 0, strpos($name, '_'));
+        }
+
+        if (false === strpos($name, '-')) {
+            // No - anymore at this point, so the $name given is incorrect. Return whatever we have
+            return $name . ' ' . $version;
+        }
+
+        /**
+         * Remove stuff following after SUPEE number starting with a dash (the second dash)
+         * @example "SUPEE-7405-CE-1-7-0-2"
+         */
+        if (false !== strpos($name, '-', strpos($name, '-') + 1)) {
+            $name = substr($name, 0, strpos($name, '-', strpos($name, '-') + 1));
+        }
+
+        return $name . ' ' . $version;
     }
 }
 
