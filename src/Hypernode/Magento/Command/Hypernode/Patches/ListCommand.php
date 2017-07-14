@@ -134,12 +134,21 @@ class ListCommand extends AbstractHypernodeCommand
         }
         $ioAdapter->open(array('path' => $ioAdapter->dirname($this->patchFile)));
         $ioAdapter->streamOpen($this->patchFile, 'r');
+
         while ($buffer = $ioAdapter->streamRead()) {
-            if (stristr($buffer, '|')) {
-                $patchInfo = array_map('trim', explode('|', $buffer));
-                $this->appliedPatches[$this->_formatPatchName($patchInfo[1], $patchInfo[3])] = true;
+            if (false === strpos($buffer, '|')) {
+                continue;
+            }
+
+            $patchInfo = array_map('trim', explode('|', $buffer));
+            $patchName = $this->_formatPatchName($patchInfo[1], $patchInfo[3]);
+            if (in_array('REVERTED', $patchInfo)) {
+                unset($this->appliedPatches[$patchName]);
+            } else {
+                $this->appliedPatches[$patchName] = true;
             }
         }
+
         $ioAdapter->streamClose();
     }
 
