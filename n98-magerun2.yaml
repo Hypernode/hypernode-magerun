@@ -1,0 +1,12 @@
+autoloaders:
+  Hypernode: %module%/src
+
+commands:
+  customCommands:
+    - Hypernode\Magento\Command\Hypernode\Performance\PerformanceCommand
+
+passwordCracker:
+  rulesDirs:
+    - %module%/config/rules/
+  wordlistDirs:
+    - %module%/config/wordlists/

@@ -34,7 +34,9 @@
   "require-dev": {
     "phpunit/phpunit": "~4.8",
     "mikey179/vfsStream": "1.6.4",
-    "n98/magerun": "dev-master"
+    "n98/magerun": "dev-master",
+    "firegento/magento": "~1.9.3",
+    "doctrine/instantiator": "~1.0.5"
   },
   "autoload": {
     "psr-0": {

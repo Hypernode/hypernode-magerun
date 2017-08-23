@@ -19,12 +19,17 @@ Here's the easiest:
 1. Create ~/.n98-magerun/modules/ if it doesn't already exist.
 
         mkdir -p ~/.n98-magerun/modules/
+        mkdir -p ~/.n98-magerun2/modules/
 
 2. Clone the hypernode-magerun repository in there
 
         git clone https://github.com/Hypernode/hypernode-magerun.git ~/.n98-magerun/modules/hypernode-magerun
 
-3. It should be installed. To see that it was installed, run magerun without any arguments to see if one of the new commands is in there.
+3. Link the repository for n98-magerun2
+
+        ln -s ~/.n98-magerun/modules/hypernode-magerun ~/.n98-magerun2/modules/hypernode-magerun
+
+4. It should be installed. To see that it was installed, run magerun without any arguments to see if one of the new commands is in there.
 
         n98-magerun.phar
 
@@ -112,6 +117,12 @@ Building a .deb for release:
 
 Then if everything is alright, upload the new version to your repository with something like [dput](http://manpages.ubuntu.com/manpages/precise/man1/dput.1.html)
 
+n98-magerun2 compatibility
+-----------------------
+
+Currently, only the command `hypernode:perfomance` is partially compatible with n98-magerun2. 
+
+Please contribute to make more commands available for n98-magerun2!
 
 Credits due where credits due
 --------
