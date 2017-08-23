@@ -29,11 +29,29 @@ use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
  */
 class PerformanceCommand extends AbstractHypernodeCommand
 {
-
+    /**
+     * @var array
+     */
     protected $_options;
+
+    /**
+     * @var array
+     */
     protected $_sitemaps;
+
+    /**
+     * @var array
+     */
     protected $_batches;
+
+    /**
+     * @var array
+     */
     protected $_results;
+
+    /**
+     * @var bool
+     */
     protected $_totalTime = false;
 
     /**
@@ -53,7 +71,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
             ->addOption('totaltime', null, InputOption::VALUE_NONE, 'Measure total time instead of TTFB. Note: TTFB labels are not adjusted.');
     }
 
-
     /**
      * Executes command.
      * @param InputInterface $input
@@ -62,11 +79,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->detectMagento($output);
-        if (!$this->initMagento()) {
-            return;
-        }
-
         // setting the options - hypernode demands it
         $this->_options = $input->getOptions();
 
@@ -77,20 +89,31 @@ class PerformanceCommand extends AbstractHypernodeCommand
         }
 
         // get sitemaps to process
-        if (!$this->_options['sitemap'] && !$this->_options['silent']) {
-            $this->_sitemaps = $this->askSitemapsToProcess($input, $output);
-        } else {
-	    if (!$this->_options['sitemap'] && $this->_options['silent']) {
-	        $this->_sitemaps = $this->retrieveSitemaps();
+        if ($this->_options['sitemap']) {
+            $sitemapFromInput = $this->getSitemapFromInput($this->_options);
+            if (!$sitemapFromInput) {
+                $output->writeln('<error>Could not fetch specified sitemap: ' . $this->_options['sitemap'] . '</error>');
             } else {
-                $sitemapFromInput = $this->getSitemapFromInput($this->_options);
-                if (!$sitemapFromInput) {
-                    $output->writeln('<error>Could not fetch specified sitemap: ' . $this->_options['sitemap'] . '</error>');
-                } else {
-                    $this->_sitemaps = $sitemapFromInput;
-                }
+                $this->_sitemaps = $sitemapFromInput;
             }
-         
+        } else {
+            $this->detectMagento($output);
+            if (!$this->initMagento()) {
+                return;
+            }
+
+            if (intval($this->getApplication()->getMagentoMajorVersion()) === 2) {
+                $output->writeln(
+                    '<error>Use argument --sitemap to specify sitemap when using Magento 2.</error>'
+                );
+                return;
+            }
+
+            if ($this->_options['silent']) {
+                $this->_sitemaps = $this->retrieveSitemaps();
+            } else {
+                $this->_sitemaps = $this->askSitemapsToProcess($input, $output);
+            }
         }
 
         // prepare the requests
@@ -132,10 +155,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 }
             }
         }
-
-
     }
-
 
     /**
      * Gets the effective URL by following the redirects.
@@ -436,7 +456,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
                         $curl->get($sitemap['sitemap_url']);
                         if ($curl->http_status_code == '200') {
                             try {
-                                $xml = new \Varien_Simplexml_Element($curl->response);
+                                $xml = new \SimpleXMLElement($curl->response);
                             } catch (\Exception $e) {
                                 $output->writeln('<error>' . $e->getMessage() . ' ' . $sitemap['sitemap_url'] . '</error>');
                                 continue;
@@ -455,7 +475,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
             } else {
                 if (file_exists($this->_magentoRootFolder . $sitemap['relative_path'])) {
                     try {
-                        $xml = new \Varien_Simplexml_Element(file_get_contents($this->_magentoRootFolder . $sitemap['relative_path']));
+                        $xml = new \SimpleXMLElement(file_get_contents($this->_magentoRootFolder . $sitemap['relative_path']));
                     } catch (\Exception $e) {
                         $output->writeln('<error>' . $e->getMessage() . ' ' . $sitemap['relative_path'] . '</error>');
                         continue;
@@ -464,7 +484,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     // converting a txt of urls to magento sitemap structure (hypernode internal)
                 } elseif (file_exists($sitemap['relative_path'])) {
                     if (end(explode('.', $sitemap['relative_path'])) == 'txt') {
-                        $xml = new \Varien_Simplexml_Element($this->convertTxtToXml(file_get_contents($sitemap['relative_path'])));
+                        $xml = new \SimpleXMLElement($this->convertTxtToXml(file_get_contents($sitemap['relative_path'])));
                     } else {
                         $output->writeln('<error>Only a txt url list is currently supported for absolute paths.</error>');
                     }
@@ -792,5 +812,4 @@ class PerformanceCommand extends AbstractHypernodeCommand
     {
         return filter_var($url, FILTER_VALIDATE_URL) ? true : false;
     }
-
 }
