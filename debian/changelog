@@ -1,3 +1,43 @@
+magerun-hypernode (20170823.173851) xenial; urgency=medium
+
+  [ frosit ]
+  * fixes
+  * extending tests
+  * added php 7
+  * Some cleaning
+  * fixes for bash scripts
+  * extended the docs and added a little helper for creating symlinks for development in the public directory
+  * added a link for the n98-magerun stopfile and a new line end for symlink.sh
+
+  [ Rick van de Loo ]
+  * fix missing buildecho in vagrant test setup
+
+  [ Peter O'Callaghan ]
+  * Fix bootstrap to be compatible with n98 update.
+  * Add password hacker.
+  * Fix notice level error for output of bounds.
+
+  [ Rafael Corrêa Gomes ]
+  * Less 1 step to give the same result
+
+  [ Willem de Groot ]
+  * Add wordlists and rules files to deb packages
+  * Add debhelper to gitignore
+
+  [ Jochem Klaver ]
+  * Fixing #46 hypernode:patches:list matching the inconsistent patch names in applies.patches.list (#47)
+  * Do not list reverted patches as applied
+
+  [ Timon de Groot ]
+  * Make command hypernode:performance available for n98-magerun2
+  * Add information to README about n98-magerun2 compatibility
+  * Optimize imports in command hypernode:performance
+  * Fixate package "doctrine/instantiator" on latest supported version
+
+  [ Rick van de Loo ]
+
+ -- Rick van de Loo <vdloo@workstation4>  Wed, 23 Aug 2017 17:38:53 +0200
+
 magerun-hypernode (20161215.144445) xenial; urgency=medium
 
   [ Rick van de Loo ]
