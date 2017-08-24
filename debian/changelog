@@ -1,3 +1,11 @@
+magerun-hypernode (20170824.105931) xenial; urgency=medium
+
+  [ Rick van de Loo ]
+  * detect magento before reading sitemap
+  * fix only variables should be passed by ref
+
+ -- Rick van de Loo <vdloo@workstation4>  Thu, 24 Aug 2017 10:59:32 +0200
+
 magerun-hypernode (20170823.173851) xenial; urgency=medium
 
   [ frosit ]
