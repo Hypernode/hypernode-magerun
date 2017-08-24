@@ -88,6 +88,12 @@ class PerformanceCommand extends AbstractHypernodeCommand
             $this->_options['compare-url'] = $this->getEffectiveUrl($this->_options['compare-url']);
         }
 
+        try {
+            $this->detectMagento($output);
+            $this->initMagento();
+        } catch (\Exception $e) {
+        }
+
         // get sitemaps to process
         if ($this->_options['sitemap']) {
             $sitemapFromInput = $this->getSitemapFromInput($this->_options);
@@ -97,10 +103,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 $this->_sitemaps = $sitemapFromInput;
             }
         } else {
-            $this->detectMagento($output);
-            if (!$this->initMagento()) {
-                return;
-            }
 
             if (intval($this->getApplication()->getMagentoMajorVersion()) === 2) {
                 $output->writeln(
