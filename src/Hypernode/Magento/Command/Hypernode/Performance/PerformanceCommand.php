@@ -483,7 +483,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
                     // converting a txt of urls to magento sitemap structure (hypernode internal)
                 } elseif (file_exists($sitemap['relative_path'])) {
-                    if (end(explode('.', $sitemap['relative_path'])) == 'txt') {
+		    $path_exploded = explode('.', $sitemap['relative_path']);
+                    if (end($path_exploded) == 'txt') {
                         $xml = new \SimpleXMLElement($this->convertTxtToXml(file_get_contents($sitemap['relative_path'])));
                     } else {
                         $output->writeln('<error>Only a txt url list is currently supported for absolute paths.</error>');
