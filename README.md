@@ -128,3 +128,4 @@ Credits due where credits due
 --------
 
 Thanks to [Netz98](http://www.netz98.de) for creating the awesome Swiss army knife for Magento, [magerun](https://github.com/netz98/n98-magerun/).
+
