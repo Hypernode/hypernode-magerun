@@ -27,6 +27,7 @@ PYTHONPATH=${HYPERNODE_VAGRANT_RUNNER_DIR}/tools/hypernode-vagrant-runner \
     --project-path="$PROJECT_DIRECTORY" \
     --command-to-run="$TEST_COMMAND" \
     --user="$TEST_USER" \
+    --xenial \
     --enable-xdebug \
     "$@"  # All other arguments. So you can run ./runtests.sh -1 or --help for example
 
