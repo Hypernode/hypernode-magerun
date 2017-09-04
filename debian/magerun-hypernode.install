@@ -3,5 +3,6 @@
 src/ /usr/local/share/n98-magerun/modules/Hypernode/
 n98-magerun.yaml /usr/local/share/n98-magerun/modules/Hypernode/
 config/ /usr/local/share/n98-magerun/modules/Hypernode/
-
-
+src/ /usr/local/share/n98-magerun2/modules/Hypernode/
+n98-magerun2.yaml /usr/local/share/n98-magerun2/modules/Hypernode/
+config/ /usr/local/share/n98-magerun2/modules/Hypernode/
