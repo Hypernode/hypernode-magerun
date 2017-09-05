@@ -506,7 +506,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
                 $replace = false;
                 // finding out which replace strategy to use
-                if ($this->_options['sitemap'] && $this->_options['compare-url'] && $this->_options['current-url']) {
+                if ($this->_options['compare-url'] && $this->_options['current-url']) {
                     $replace = 3; // Replace and compare
                 } elseif ($requestSet['metadata']['base_url']) {
                     if (!$this->matchUrls($requestSet['metadata']['base_url'], $urls[0])['status']) {
