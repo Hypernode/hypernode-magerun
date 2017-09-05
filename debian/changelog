@@ -1,3 +1,16 @@
+magerun-hypernode (20170905.123052) xenial; urgency=medium
+
+  [ Fabio Ros ]
+  * Fix www. issue in Nginx maps generate command
+
+  [ Rick van de Loo ]
+  * add hypernode:performance to magerun2 systemwide
+  * run vagrant tests using the xenial image
+  * benchmark remote site when magento sitemap is used
+  * remove magento 1.4..1.7 tests
+
+ -- Rick van de Loo <vdloo@workstation4>  Tue, 05 Sep 2017 12:30:53 +0200
+
 magerun-hypernode (20170824.105931) xenial; urgency=medium
 
   [ Rick van de Loo ]
