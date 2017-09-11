@@ -1,3 +1,11 @@
+magerun-hypernode (20170911.121513) xenial; urgency=medium
+
+  [ frosit ]
+  * fix conflicts for #36
+  * re-implement eb07769a89bb8f70c97c0a41ea6efd3125aa1821 and fc512b70f4740f289f59241a745be152861698ee
+
+ -- Rick van de Loo <vdloo@workstation4>  Mon, 11 Sep 2017 12:15:14 +0200
+
 magerun-hypernode (20170905.123052) xenial; urgency=medium
 
   [ Fabio Ros ]
