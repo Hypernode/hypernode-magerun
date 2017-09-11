@@ -16,4 +16,3 @@ git tag $VERSION
 echo "Pushing tags"
 git push
 git push --tags
-echo "Great! Now run: dput -uf precise ../*$VERSION*.changes"
