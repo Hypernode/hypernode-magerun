@@ -15,10 +15,9 @@
 
 namespace Hypernode\Magento\Command\Hypernode\Performance;
 
-require_once __DIR__ . '/../../../../../../vendor/marcushat/rolling-curl-x/src/RollingCurlX.php';
 
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
-use marcushat\RollingCurlX;
+use Hypernode\Util\RollingCurlX;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -276,36 +275,33 @@ class PerformanceCommand extends AbstractHypernodeCommand
     protected function generateTablesData($results)
     {
         $tables = []; // all tables
-        foreach ($results as $set) { // foreach sitemap we parsed
+        // setting placeholder var and headers
+        $tableArray = [
+            'headers'  => false,
+            'requests' => [],
+        ]; // every table row
 
-            // setting placeholder var and headers
-            $tableArray = [
-                'headers'  => false,
-                'requests' => [],
-            ]; // every table row
+        // setting headers
+        if ($this->_options['compare-url']) {
+            $tableArray['headers'] = [
+                "URL",
+                "Status X",
+                "TTFB X",
+                "Status Y",
+                "TTFB Y",
+                "Difference",
+            ];
+        } else {
+            $tableArray['headers'] = ["URL", "Status", "TTFB"];
+        }
 
-            // setting headers
-            if ($this->_options['compare-url']) {
-                $tableArray['headers'] = [
-                    "URL",
-                    "Status X",
-                    "TTFB X",
-                    "Status Y",
-                    "TTFB Y",
-                    "Difference",
-                ];
-            } else {
-                $tableArray['headers'] = ["URL", "Status", "TTFB"];
-            }
-
-            foreach ($set as $batch) {
-                foreach ($batch as $result) {
+        foreach ($results as $result) { // foreach sitemap we parsed
 
                     $requestArray = [];
 
-                    $parsedUrl      = parse_url($result['current']['url']);
+                    $parsedUrl = parse_url($result['current']['url']);
 
-                    if($this->_options['compare-url']) {
+                    if ($this->_options['compare-url']) {
                         $requestArray[] = $parsedUrl['path'];
                     } else {
                         $requestArray[] = $result['current']['url'];
@@ -317,16 +313,15 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     $requestArray[] = $result['current']['ttfb'];
 
                     if (array_key_exists('compare', $result)) {
-                        $requestArray[] = $result['compare']['status'];
+                        $requestArray[] = $this->parseResponseCode($result['compare']['status']);
                         $requestArray[] = $result['compare']['ttfb'];
                         $requestArray[] = $this->ttfbCompare($result['current']['ttfb'], $result['compare']['ttfb']);
                     }
 
                     array_push($tableArray['requests'], $requestArray);
                 }
+
                 array_push($tables, $tableArray);
-            }
-        }
 
         return $tables;
     }
@@ -348,24 +343,23 @@ class PerformanceCommand extends AbstractHypernodeCommand
             $output->writeln('<info>Found ' . count($this->_batches) . ' batches to process.</info>');
         }
 
-        $bi       = 1; // batch number
+        $bi = 1; // batch number
 
         foreach ($this->_batches as $set) { // sitemaps
-            $batchesCount = count($set['requests']);
-
+            //$batchesCount = count($set['requests']);
+            $batchesCount = count($this->_batches);
             $setResults = [];
 
+            if (!$this->_options['silent']) {
+                $progress = new ProgressBar($output, count($set['requests']));
+                $progress->setFormat('<info> %message% </info>' . PHP_EOL . '%current%/%max% [%bar%] <comment> %percent:3s%% - %elapsed:6s%/%estimated:-6s% </comment>');
+                $progress->setMessage('Now executing batch: ' . $bi . '/' . $batchesCount . PHP_EOL);
+                $progress->start();
+            }
 
             foreach ($set['requests'] as $batch) { // the batches of requests, singular or plural
 
                 $batchResult = [];
-
-                if (!$this->_options['silent']) {
-                    $progress = new ProgressBar($output, $batchesCount);
-                    $progress->setFormat('<info> %message% </info>' . PHP_EOL . '%current%/%max% [%bar%] <comment> %percent:3s%% - %elapsed:6s%/%estimated:-6s% </comment>');
-                    $progress->setMessage('Now executing batch: ' . $bi . '/' . $batchesCount . PHP_EOL);
-                    $progress->start();
-                }
 
 
                 $RCX = new RollingCurlX(count($batch));
@@ -386,7 +380,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     foreach ($request as $type => $url) {
                         $RCX->addRequest(
                             $url, null,
-                            function ($response, $url, $requestInfo, $userData, $time) use ($output, $progress, $type, &$batchResult) {
+                            function ($response, $url, $requestInfo, $userData, $time) use ($output, $progress, $type, &$totalResult) {
                                 $progress->setMessage('Now executing request: ' . $url);
                                 $progress->setMessage($this->parseStatusMessage([$requestInfo]));
                                 $progress->advance();
@@ -402,7 +396,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
                                     $result['ttfb'] = $requestInfo['total_time'];
                                 }
 
-                                $batchResult[parse_url($url)['path']][$type] = $result;
+                                $totalResult[parse_url($url)['path']][$type] = $result;
                                 //array_push($batchResult, $result);
 
                             },
@@ -410,21 +404,20 @@ class PerformanceCommand extends AbstractHypernodeCommand
                             null
                         );
                     }
-
-
                 }
+
 
                 $RCX->execute();
 
-                $progress->finish();
-                $progress->clear();
-                $bi++;
-                array_push($setResults, $batchResult);
-                array_push($totalResult, $setResults);
             }
+            $bi++;
+            $progress->finish();
+            //$progress->clear();
 
-            return $totalResult;
         }
+
+
+        return $totalResult;
     }
 
     /**
@@ -653,9 +646,9 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
                     if ($this->_options['limit'] && $i >= $this->_options['limit']) {
 
-                        if ($this->_options['batchsize']) {
-                            array_push($requestSet['requests'], $requestBatch);
-                        }
+                        //if ($this->_options['batchsize']) {
+                        array_push($requestSet['requests'], $requestBatch);
+                        //}
 
                         break;
                     }
