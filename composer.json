@@ -29,7 +29,8 @@
     }
   ],
   "require": {
-    "php": ">=5.3"
+    "php": ">=5.3",
+    "marcushat/rolling-curl-x": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.8",

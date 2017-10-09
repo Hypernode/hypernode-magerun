@@ -25,6 +25,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 /**
  * Class CacheWarmerCommand
+ *
  * @package Hypernode\Magento\Command\Performance
  */
 class PerformanceCommand extends AbstractHypernodeCommand
@@ -68,13 +69,16 @@ class PerformanceCommand extends AbstractHypernodeCommand
             ->addOption('silent', null, InputOption::VALUE_NONE, 'Disables all messages, outputs results in JSON.', null)
             ->addOption('format', null, InputOption::VALUE_OPTIONAL, 'Format for file output result [' . implode(',', RendererFactory::getFormats()) . '] (default console table)', false)
             ->addOption('limit', null, InputOption::VALUE_OPTIONAL, 'Limits the amount of requests to curl.', false)
-            ->addOption('totaltime', null, InputOption::VALUE_NONE, 'Measure total time instead of TTFB. Note: TTFB labels are not adjusted.');
+            ->addOption('totaltime', null, InputOption::VALUE_NONE, 'Measure total time instead of TTFB. Note: TTFB labels are not adjusted.')
+            ->addOption('batchsize', null, InputOption::VALUE_OPTIONAL, 'Batch size for multithreading', false);
     }
 
     /**
      * Executes command.
-     * @param InputInterface $input
+     *
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return bool|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -104,10 +108,14 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
         } else {
 
-            if (intval($this->getApplication()->getMagentoMajorVersion()) === 2) {
+            if (intval(
+                    $this->getApplication()
+                         ->getMagentoMajorVersion()
+                ) === 2) {
                 $output->writeln(
                     '<error>Use argument --sitemap to specify sitemap when using Magento 2.</error>'
                 );
+
                 return;
             }
 
@@ -161,8 +169,11 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
     /**
      * Gets the effective URL by following the redirects.
+     *
      * @todo change to curl Class
+     *
      * @param $url
+     *
      * @return mixed
      */
     protected function getEffectiveUrl($url)
@@ -175,44 +186,60 @@ class PerformanceCommand extends AbstractHypernodeCommand
         # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/app/code/community/Nexcessnet/Turpentine/etc/config.xml#L66
         curl_setopt($ch, CURLOPT_USERAGENT, "ApacheBench/2.3");
         curl_exec($ch);
+
         return curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     }
 
     /**
      * Strips the domain to only domain name and tld.
+     *
      * @note no schema, subdomain, port or path
+     *
      * @param $url
+     *
      * @return bool
      */
     protected function getStrippedUrl($url)
     {
         $pattern = '/\w+\..{2,3}(?:\..{2,3})?(?:$|(?=\/))/i';
+
         return preg_match($pattern, $url, $matches) === 1 ? $matches[0] : false;
     }
 
     /**
      * Generates table data without console styling.
+     *
      * @note currently only change of dataset, future also different formats without table helper to save in file.
+     *
      * @param $results
+     *
      * @return array
      */
     protected function generateTablesDataForFormat($results)
     {
-        $tables = array(); // all tables
+        $tables = []; // all tables
         foreach ($results as $set) {
-            $tableArray = array(
-                'headers' => false,
-                'requests' => array()
-            ); // every table row
+            $tableArray = [
+                'headers'  => false,
+                'requests' => [],
+            ]; // every table row
 
             if (count($set[0]) > 1) {
-                $tableArray['headers'] = array("current_url", "current_url_status", "current_url_response", "compare_url", "compare_url_status", "compare_url_response", "difference");
+                $tableArray['headers'] = [
+                    "current_url",
+                    "current_url_status",
+                    "current_url_response",
+                    "compare_url",
+                    "compare_url_status",
+                    "compare_url_response",
+                    "difference",
+                ];
             } elseif (count($set[0]) == 1) {
-                $tableArray['headers'] = array("url", "status", "response");
+                $tableArray['headers'] = ["url", "status", "response"];
             }
 
             foreach ($set as $batch) {
-                $requestArray = array();
+                $requestArray = [];
                 if (count($batch) > 1) {
                     foreach ($batch as $request) {
                         $requestArray[] = $request['url'];
@@ -229,40 +256,51 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
             array_push($tables, $tableArray);
         }
+
         return $tables;
     }
 
 
     /**
      * Generates data to output in a table.
+     *
      * @todo make table nicer, fix colorized output in diffferent format - new function
+     *
      * @param $results
+     *
      * @return array|bool
      */
     protected function generateTablesData($results)
     {
-        $tables = array(); // all tables
+        $tables = []; // all tables
         foreach ($results as $set) { // foreach sitemap we parsed
 
             // setting placeholder var and headers
-            $tableArray = array(
-                'headers' => false,
-                'requests' => array()
-            ); // every table row
+            $tableArray = [
+                'headers'  => false,
+                'requests' => [],
+            ]; // every table row
 
             // setting headers
             if (count($set[0]) > 1) {
-                $tableArray['headers'] = array("URL", "Status X", "TTFB X", "Status Y", "TTFB Y", "Difference");
+                $tableArray['headers'] = [
+                    "URL",
+                    "Status X",
+                    "TTFB X",
+                    "Status Y",
+                    "TTFB Y",
+                    "Difference",
+                ];
             } elseif (count($set[0]) == 1) {
-                $tableArray['headers'] = array("URL", "Status", "TTFB");
+                $tableArray['headers'] = ["URL", "Status", "TTFB"];
             }
 
             foreach ($set as $batch) {
 
-                $requestArray = array();
+                $requestArray = [];
 
                 if (count($batch) > 1) {
-                    $parsedUrl = parse_url($batch[0]['url']);
+                    $parsedUrl      = parse_url($batch[0]['url']);
                     $requestArray[] = $parsedUrl['path'];
                     foreach ($batch as $request) {
                         $requestArray[] = $this->parseResponseCode($request['status']);
@@ -281,32 +319,36 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
             array_push($tables, $tableArray);
         }
+
         return $tables;
     }
 
 
     /**
      * Executes all prepared batches of requests.
-     * @param InputInterface $input
+     *
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return array
      */
     protected function executeBatches(InputInterface $input, OutputInterface $output)
     {
-        $totalResult = array();
+        die(var_dump($this->_batches));
+        $totalResult = [];
 
         if (!$this->_options['silent']) {
             $output->writeln('<info>Found ' . count($this->_batches) . ' sets to process.</info>');
         }
 
         $setCount = count($this->_batches);
-        $bi = 1; // batch number
+        $bi       = 1; // batch number
 
         foreach ($this->_batches as $set) { // sitemaps
-            $meta = $set['metadata'];
+            $meta         = $set['metadata'];
             $batchesCount = count($set['requests']);
 
-            $setResults = array();
+            $setResults = [];
             if (!$this->_options['silent']) {
                 $progress = new ProgressBar($output, $batchesCount);
                 $progress->setFormat('<info> %message% </info>' . PHP_EOL . '%current%/%max% [%bar%] <comment> %percent:3s%% - %elapsed:6s%/%estimated:-6s% </comment>');
@@ -315,10 +357,15 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
 
             foreach ($set['requests'] as $batch) { // the batches of requests, singular or plural
-                $batchResult = array();
+                $batchResult = [];
                 foreach ($batch as $request) {
-                    $response = $this->simpleCurl($request);
-                    $response['comparison_key'] = strtr($response['url'], array(rtrim($this->_options['compare-url'], "/") => '', rtrim($this->_options['current-url'], "/") => ''));
+                    $response                   = $this->simpleCurl($request);
+                    $response['comparison_key'] = strtr(
+                        $response['url'], [
+                                            rtrim($this->_options['compare-url'], "/") => '',
+                                            rtrim($this->_options['current-url'], "/") => '',
+                                        ]
+                    );
                     array_push($batchResult, $response);
                 }
                 array_push($setResults, $batchResult);
@@ -344,7 +391,9 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
     /**
      * Parses the status message for the user in between requests.
+     *
      * @param $result
+     *
      * @return string
      */
     protected function parseStatusMessage($result)
@@ -356,19 +405,23 @@ class PerformanceCommand extends AbstractHypernodeCommand
             $message .= "<fg=white>URL:</> " . $parsedUrl['path'] . ' | ';
             $message .= " <fg=white>Status:</> " . $this->parseResponseCode($result[0]['status']) . "/" . $this->parseResponseCode($result[1]['status']) . " | ";
             $message .= " <fg=white>TTFB:</> " . $result[0]['ttfb'] . ' / ' . $result[1]['ttfb'] . ' | <fg=white>Difference:</> ' . $this->ttfbCompare($result[0]['ttfb'], $result[1]['ttfb']);
+
             return $message;
         } else { // single
             $message .= "URL: " . '<fg=white>' . $result[0]['url'] . '</>';
             $message .= " " . $this->parseResponseCode($result[0]['status']);
             $message .= " TTFB: " . $result[0]['ttfb'];
+
             return $message;
         }
     }
 
     /**
      * Compare the TTFB Values and give colorized response if necessary.
+     *
      * @param $new
      * @param $old
+     *
      * @return string
      */
     protected function ttfbCompare($new, $old)
@@ -377,12 +430,15 @@ class PerformanceCommand extends AbstractHypernodeCommand
         if ($difference > 0) {
             $difference = "<fg=red>" . $difference . "</>";
         }
+
         return $difference;
     }
 
     /**
      * Parses the response code colorized.
+     *
      * @param $code
+     *
      * @return bool|string
      */
     protected function parseResponseCode($code)
@@ -398,17 +454,20 @@ class PerformanceCommand extends AbstractHypernodeCommand
             default:
                 $response = "<fg=blue>" . $code . "</>";
         }
+
         return $response;
     }
 
     /**
      * A simple Curl function used to process the requests.
+     *
      * @param $url
+     *
      * @return array
      */
     protected function simpleCurl($url)
     {
-        $result = array();
+        $result = [];
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -420,9 +479,9 @@ class PerformanceCommand extends AbstractHypernodeCommand
         curl_setopt($ch, CURLOPT_USERAGENT, "ApacheBench/2.3");
         curl_exec($ch);
 
-        $result['url'] = $url;
+        $result['url']    = $url;
         $result['status'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $result['ttfb'] = curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME);
+        $result['ttfb']   = curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME);
         if (!$this->_totalTime) {
             $result['ttfb'] = curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME);
         } else {
@@ -430,22 +489,25 @@ class PerformanceCommand extends AbstractHypernodeCommand
         }
 
         curl_close($ch);
+
         return $result;
     }
 
     /**
      * Prepares all requests data by processing (sitemap) input.
-     * @param InputInterface $input
+     *
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return mixed
      */
     protected function prepareRequests(InputInterface $input, OutputInterface $output)
     {
-        $requestSetCollection = array(); // collection of all sets of requests (set = sitemap)
+        $requestSetCollection = []; // collection of all sets of requests (set = sitemap)
 
         // looping through all sitemaps, get, validate and prepare them
         foreach ($this->_sitemaps as $sitemap) {
-            $requestSet = array(); // a sitemap
+            $requestSet             = []; // a sitemap
             $requestSet['metadata'] = $sitemap;
 
             $xml = '';
@@ -485,7 +547,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
                     // converting a txt of urls to magento sitemap structure (hypernode internal)
                 } elseif (file_exists($sitemap['relative_path'])) {
-		    $path_exploded = explode('.', $sitemap['relative_path']);
+                    $path_exploded = explode('.', $sitemap['relative_path']);
                     if (end($path_exploded) == 'txt') {
                         $xml = new \SimpleXMLElement($this->convertTxtToXml(file_get_contents($sitemap['relative_path'])));
                     } else {
@@ -497,8 +559,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
             // creating batches
             if ($xml) {
 
-                $requestSet['requests'] = array();
-                $urls = array();
+                $requestSet['requests'] = [];
+                $urls                   = [];
 
                 foreach ($xml->children() as $child) {
                     array_push($urls, $child->loc);
@@ -514,9 +576,16 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     }
                 }
 
-                $i = 1;
+                $i            = 1;
+                $j            = 0;
+                $requestBatch = []; // batch for curling
                 foreach ($urls as $url) {
-                    $requestBatch = array(); // batch for curling
+
+                    /**
+                     * @todo: fix batch increments so first one isn't +1 for no reason
+                     */
+
+                    //$requestBatch = []; // batch for curling
 
                     // replace strategy execution
                     if ($replace) {
@@ -535,25 +604,43 @@ class PerformanceCommand extends AbstractHypernodeCommand
                         array_push($requestBatch, (string)$url); // no replace, just crawl
                     }
 
-                    array_push($requestSet['requests'], $requestBatch);
-
                     if ($this->_options['limit'] && $i >= $this->_options['limit']) {
+
+                        if($this->_options['batchsize']) {
+                            array_push($requestSet['requests'], $requestBatch);
+                        }
+
                         break;
-                    } else {
-                        $i++;
                     }
+
+                    if (!$this->_options['batchsize']) {
+                        array_push($requestSet['requests'], $requestBatch);
+                    } else {
+                        if ($j >= $this->_options['batchsize']) {
+                            array_push($requestSet['requests'], $requestBatch);
+                            $requestBatch = [];
+                            $j            = 0;
+                        }
+                    }
+
+                    $i++;
+                    $j++;
                 } //endforeach
             } //endif $xml @todo verify that no empty set is returned with bad $xml (prio)
 
             array_push($requestSetCollection, $requestSet);
         }
+
         return $requestSetCollection;
     }
 
     /**
      * Convert a txt URL list to XML using Magento sitemap structure.
+     *
      * @note could be used for auto generating if no sitemaps available
+     *
      * @param $txt
+     *
      * @return string
      */
     protected function convertTxtToXml($txt)
@@ -564,29 +651,36 @@ class PerformanceCommand extends AbstractHypernodeCommand
             $xml .= '<url><loc>' . $url . '</loc></url>';
         }
         $xml .= '</urlset>';
+
         return $xml;
     }
 
     /**
      * Replaces the URL by a regex strip.
+     *
      * @param $sitemapUrl
      * @param $replaceUrl
+     *
      * @return string
      */
     protected function replaceUrl($sitemapUrl, $replaceUrl)
     {
         $strippedUrl = $this->getStrippedUrl($sitemapUrl);
-        $parts = explode($strippedUrl, $sitemapUrl);
-        $url = rtrim($replaceUrl, "/");
-        $path = ltrim(end($parts), "/");
+        $parts       = explode($strippedUrl, $sitemapUrl);
+        $url         = rtrim($replaceUrl, "/");
+        $path        = ltrim(end($parts), "/");
+
         return $url . "/" . $path;
     }
 
     /**
      * Replaces the Sitemap URL
+     *
      * @todo finish port support
+     *
      * @param $sitemapUrl
      * @param $replaceUrl
+     *
      * @return mixed
      */
     protected function replaceUrlByParse($sitemapUrl, $replaceUrl)
@@ -599,25 +693,32 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 $sitemapUrl = str_replace(parse_url($sitemapUrl)[$replacement], parse_url($replaceUrl)[$replacement], $sitemapUrl);
             }
         }
+
         return (string)$sitemapUrl;
     }
 
     /**
      * Asks the user what to do in case of a mismatched URL
-     * @param InputInterface $input
+     *
+     * @param InputInterface  $input
      * @param OutputInterface $output
-     * @param $definedUrl
-     * @param $foundUrl
+     * @param                 $definedUrl
+     * @param                 $foundUrl
+     *
      * @return bool|int
      */
     protected function askReplaceOrCompare(InputInterface $input, OutputInterface $output, $definedUrl, $foundUrl)
     {
-        $helper = $this->getHelper('question');
+        $helper   = $this->getHelper('question');
         $question = new ChoiceQuestion(
             '<question>The identified URL: ' . parse_url($definedUrl)['host'] . ', does not match the found URL: ' . parse_url($foundUrl)['host'] . ' by: ' . implode(" ,", $this->matchUrls($definedUrl, $foundUrl)['mismatches']) . PHP_EOL . 'What do you want to do?</question>',
-            array('Use site from sitemap', 'Use site from default url', 'Use both (side by side)')
+            [
+                'Use site from sitemap',
+                'Use site from default url',
+                'Use both (side by side)',
+            ]
         );
-        $answer = $helper->ask($input, $output, $question);
+        $answer   = $helper->ask($input, $output, $question);
         $output->writeln($answer);
 
         switch ($answer) {
@@ -630,25 +731,29 @@ class PerformanceCommand extends AbstractHypernodeCommand
             default:
                 $answer = false;
         }
+
         return $answer;
     }
 
     /**
      * Checks if URL's are identical.
+     *
      * @note does not support store code or port usage
+     *
      * @param $url
      * @param $match
+     *
      * @return mixed
      */
     protected function matchUrls($url, $match)
     {
-        $parsedUrl = parse_url($url);
+        $parsedUrl      = parse_url($url);
         $parsedMatchUrl = parse_url($match);
 
-        $matchResult = array(
-            'status' => true,
-            'mismatches' => array()
-        );
+        $matchResult = [
+            'status'     => true,
+            'mismatches' => [],
+        ];
 
         // check schema - http / https
         if ($parsedUrl['scheme'] !== $parsedMatchUrl['scheme']) {
@@ -669,30 +774,36 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 array_push($matchResult['mismatches'], 'port');
             }
         }
+
         return $matchResult;
     }
 
     /**
      * Processes the sitemap data from input.
+     *
      * @note multi sitemap and fetching sitemap by Int not supported atm.
      * @todo Support multi sitemap and fetching sitemap by int
+     *
      * @param $options
+     *
      * @return array|bool
      */
     protected function getSitemapFromInput($options)
     {
-        $sitemaps = array();
+        $sitemaps = [];
         if ($this->validateUrl($options['sitemap'])) {
             try {
                 $curl = $this->getCurl();
                 $curl->get($options['sitemap']);
                 if ($curl->http_status_code == '200') {
                     $parsedUrl = parse_url($options['sitemap']);
-                    array_push($sitemaps, array(
-                        'relative_path' => $parsedUrl['path'],
-                        'sitemap_url' => $options['sitemap'],
-                        'base_url' => $options['current-url']
-                    ));
+                    array_push(
+                        $sitemaps, [
+                                     'relative_path' => $parsedUrl['path'],
+                                     'sitemap_url'   => $options['sitemap'],
+                                     'base_url'      => $options['current-url'],
+                                 ]
+                    );
                 } else {
                     return false;
                 }
@@ -700,13 +811,14 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 if (!$this->_options['silent']) {
                     throw new \RuntimeException('Could not fetch a sitemap at ' . $options['sitemap'] . ' .');
                 }
+
                 return false;
             }
         } else {
             $str = $options['sitemap'];
 
             if (substr($options['sitemap'], 0, 1) != '/') {
-                $str = DIRECTORY_SEPARATOR . $str;
+                $str      = DIRECTORY_SEPARATOR . $str;
                 $pathType = 'relative';
             } else {
                 $pathType = 'absolute';
@@ -714,42 +826,51 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
             if ($pathType == 'relative') {
                 if (file_exists($this->_magentoRootFolder . $str)) {
-                    array_push($sitemaps, array(
-                        'relative_path' => $str,
-                        'base_url' => $options['current-url']
-                    ));
+                    array_push(
+                        $sitemaps, [
+                                     'relative_path' => $str,
+                                     'base_url'      => $options['current-url'],
+                                 ]
+                    );
                 } else {
                     return false;
                 }
             } elseif ($pathType == 'absolute') {
                 if (file_exists($str)) {
-                    array_push($sitemaps, array(
-                        'relative_path' => $str,
-                        'base_url' => $options['current-url']
-                    ));
+                    array_push(
+                        $sitemaps, [
+                                     'relative_path' => $str,
+                                     'base_url'      => $options['current-url'],
+                                 ]
+                    );
                 } else {
                     return false;
                 }
             }
         }
+
         return $sitemaps;
     }
 
     /**
      * Retrieve the sitemapCollection
+     *
      * @return array
      */
     protected function retrieveSitemaps()
     {
-        $sitemaps = array();
+        $sitemaps          = [];
         $sitemapCollection = $this->getStoreSitemaps();
+
         return $sitemapCollection;
     }
 
     /**
      * Asks the user which sitemaps from Magento's sitemap collection to process.
-     * @param InputInterface $input
+     *
+     * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return array|bool
      */
     protected function askSitemapsToProcess(InputInterface $input, OutputInterface $output)
@@ -758,14 +879,24 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
         if (!$sitemapCollection) {
             $output->writeln('<error>There are no sitemaps defined in Magento\'s sitemap collection.</error>');
+
             return false;
         }
 
         $this->getHelper('table')
-            ->setHeaders(array('Store ID', 'Active', 'Store code', 'Path', 'Generated', 'Store URL'))
-            ->renderByFormat($output, $sitemapCollection);
+             ->setHeaders(
+                 [
+                     'Store ID',
+                     'Active',
+                     'Store code',
+                     'Path',
+                     'Generated',
+                     'Store URL',
+                 ]
+             )
+             ->renderByFormat($output, $sitemapCollection);
 
-        $helper = $this->getHelper('question');
+        $helper   = $this->getHelper('question');
         $question = new ChoiceQuestion(
             '<question>Please select one or more sitemaps. - use numbers, comma seperated for multi</question>',
             array_column($sitemapCollection, 'relative_path')
@@ -779,36 +910,44 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 $sitemaps[] = $sitemap;
             }
         }
+
         return $sitemaps;
     }
 
 
     /**
      * Gets the store sitemap collection.
+     *
      * @return array|bool
      * @throws \Mage_Core_Exception
      */
     protected function getStoreSitemaps()
     {
-        $sitemaps = array();
+        $sitemaps   = [];
         $collection = \Mage::getModel('sitemap/sitemap')->getCollection();
 
         foreach ($collection as $item) {
-            $store = \Mage::getModel('core/store')->load($item->getStoreId());
-            $sitemap['store_id'] = $item->getStoreId();
-            $sitemap['store_active'] = $store->getIsActive() ? 'Yes' : 'No';
-            $sitemap['store_code'] = $store->getCode();
+            $store                    = \Mage::getModel('core/store')
+                                             ->load($item->getStoreId());
+            $sitemap['store_id']      = $item->getStoreId();
+            $sitemap['store_active']  = $store->getIsActive() ? 'Yes' : 'No';
+            $sitemap['store_code']    = $store->getCode();
             $sitemap['relative_path'] = $item->getSitemapPath() . $item->getSitemapFilename();
-            $sitemap['sitemap_time'] = $item->getSitemapTime();
-            $sitemap['base_url'] = \Mage::app()->getStore($sitemap['store_id'])->getBaseUrl(\Mage_Core_Model_Store::URL_TYPE_LINK);
+            $sitemap['sitemap_time']  = $item->getSitemapTime();
+            $sitemap['base_url']      = \Mage::app()
+                                             ->getStore($sitemap['store_id'])
+                                             ->getBaseUrl(\Mage_Core_Model_Store::URL_TYPE_LINK);
             array_push($sitemaps, $sitemap);
         }
+
         return empty($sitemaps) ? false : $sitemaps;
     }
 
     /**
      * Validates an URL
+     *
      * @param $url
+     *
      * @return bool
      */
     protected function validateUrl($url)
