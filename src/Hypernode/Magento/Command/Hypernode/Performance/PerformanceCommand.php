@@ -15,7 +15,10 @@
 
 namespace Hypernode\Magento\Command\Hypernode\Performance;
 
+require_once __DIR__ . '/../../../../../../vendor/marcushat/rolling-curl-x/src/RollingCurlX.php';
+
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
+use marcushat\RollingCurlX;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -282,7 +285,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
             ]; // every table row
 
             // setting headers
-            if (count($set[0]) > 1) {
+            if ($this->_options['compare-url']) {
                 $tableArray['headers'] = [
                     "URL",
                     "Status X",
@@ -291,33 +294,38 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     "TTFB Y",
                     "Difference",
                 ];
-            } elseif (count($set[0]) == 1) {
+            } else {
                 $tableArray['headers'] = ["URL", "Status", "TTFB"];
             }
 
             foreach ($set as $batch) {
+                foreach ($batch as $result) {
 
-                $requestArray = [];
+                    $requestArray = [];
 
-                if (count($batch) > 1) {
-                    $parsedUrl      = parse_url($batch[0]['url']);
-                    $requestArray[] = $parsedUrl['path'];
-                    foreach ($batch as $request) {
-                        $requestArray[] = $this->parseResponseCode($request['status']);
-                        $requestArray[] = $request['ttfb'];
+                    $parsedUrl      = parse_url($result['current']['url']);
+
+                    if($this->_options['compare-url']) {
+                        $requestArray[] = $parsedUrl['path'];
+                    } else {
+                        $requestArray[] = $result['current']['url'];
                     }
-                    $requestArray[] = $this->ttfbCompare($batch[0]['ttfb'], $batch[1]['ttfb']);
-                } elseif (count($batch) == 1) {
 
-                    $requestArray[] = $batch[0]['url'];
-                    $requestArray[] = $this->parseResponseCode($batch[0]['status']);
-                    $requestArray[] = $batch[0]['ttfb'];
-                } else {
-                    return false; // output data as json or something
+
+                    //$requestArray[] = $result['current']['url'];
+                    $requestArray[] = $this->parseResponseCode($result['current']['status']);
+                    $requestArray[] = $result['current']['ttfb'];
+
+                    if (array_key_exists('compare', $result)) {
+                        $requestArray[] = $result['compare']['status'];
+                        $requestArray[] = $result['compare']['ttfb'];
+                        $requestArray[] = $this->ttfbCompare($result['current']['ttfb'], $result['compare']['ttfb']);
+                    }
+
+                    array_push($tableArray['requests'], $requestArray);
                 }
-                array_push($tableArray['requests'], $requestArray);
+                array_push($tables, $tableArray);
             }
-            array_push($tables, $tableArray);
         }
 
         return $tables;
@@ -334,59 +342,89 @@ class PerformanceCommand extends AbstractHypernodeCommand
      */
     protected function executeBatches(InputInterface $input, OutputInterface $output)
     {
-        die(var_dump($this->_batches));
         $totalResult = [];
 
         if (!$this->_options['silent']) {
-            $output->writeln('<info>Found ' . count($this->_batches) . ' sets to process.</info>');
+            $output->writeln('<info>Found ' . count($this->_batches) . ' batches to process.</info>');
         }
 
-        $setCount = count($this->_batches);
         $bi       = 1; // batch number
 
         foreach ($this->_batches as $set) { // sitemaps
-            $meta         = $set['metadata'];
             $batchesCount = count($set['requests']);
 
             $setResults = [];
-            if (!$this->_options['silent']) {
-                $progress = new ProgressBar($output, $batchesCount);
-                $progress->setFormat('<info> %message% </info>' . PHP_EOL . '%current%/%max% [%bar%] <comment> %percent:3s%% - %elapsed:6s%/%estimated:-6s% </comment>');
-                $progress->setMessage('Now executing batch: ' . $bi . '/' . $setCount);
-                $progress->start();
-            }
+
 
             foreach ($set['requests'] as $batch) { // the batches of requests, singular or plural
+
                 $batchResult = [];
-                foreach ($batch as $request) {
-                    $response                   = $this->simpleCurl($request);
-                    $response['comparison_key'] = strtr(
-                        $response['url'], [
-                                            rtrim($this->_options['compare-url'], "/") => '',
-                                            rtrim($this->_options['current-url'], "/") => '',
-                                        ]
-                    );
-                    array_push($batchResult, $response);
-                }
-                array_push($setResults, $batchResult);
 
                 if (!$this->_options['silent']) {
-                    $progress->clear();
-                    $progress->setMessage($this->parseStatusMessage($batchResult));
-                    $progress->display();
-                    $progress->advance();
+                    $progress = new ProgressBar($output, $batchesCount);
+                    $progress->setFormat('<info> %message% </info>' . PHP_EOL . '%current%/%max% [%bar%] <comment> %percent:3s%% - %elapsed:6s%/%estimated:-6s% </comment>');
+                    $progress->setMessage('Now executing batch: ' . $bi . '/' . $batchesCount . PHP_EOL);
+                    $progress->start();
                 }
-            }
 
-            if (!$this->_options['silent']) {
-                $progress->setMessage('Task is finished');
+
+                $RCX = new RollingCurlX(count($batch));
+
+
+                $options = [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                    CURLOPT_SSL_VERIFYPEER => 0,
+                    # Identify as a known crawler so we don't bypass the Varnish cache on shops with magento-turpentine 0.1.6 or later
+                    # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/CHANGELOG.md#release-016
+                    # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/app/code/community/Nexcessnet/Turpentine/etc/config.xml#L66
+                    CURLOPT_USERAGENT      => "ApacheBench/2.3",
+                ];
+
+                foreach ($batch as $request) {
+
+                    foreach ($request as $type => $url) {
+                        $RCX->addRequest(
+                            $url, null,
+                            function ($response, $url, $requestInfo, $userData, $time) use ($output, $progress, $type, &$batchResult) {
+                                $progress->setMessage('Now executing request: ' . $url);
+                                $progress->setMessage($this->parseStatusMessage([$requestInfo]));
+                                $progress->advance();
+
+                                $result           = [];
+                                $result['url']    = $url;
+                                $result['status'] = $requestInfo['http_code'];
+                                $result['ttfb']   = $requestInfo['starttransfer_time'];
+
+                                if (!$this->_totalTime) {
+                                    $result['ttfb'] = $requestInfo['starttransfer_time'];
+                                } else {
+                                    $result['ttfb'] = $requestInfo['total_time'];
+                                }
+
+                                $batchResult[parse_url($url)['path']][$type] = $result;
+                                //array_push($batchResult, $result);
+
+                            },
+                            $options,
+                            null
+                        );
+                    }
+
+
+                }
+
+                $RCX->execute();
+
                 $progress->finish();
+                $progress->clear();
+                $bi++;
+                array_push($setResults, $batchResult);
+                array_push($totalResult, $setResults);
             }
-            array_push($totalResult, $setResults);
-            $bi++;
-        }
 
-        return $totalResult;
+            return $totalResult;
+        }
     }
 
     /**
@@ -410,7 +448,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
         } else { // single
             $message .= "URL: " . '<fg=white>' . $result[0]['url'] . '</>';
             $message .= " " . $this->parseResponseCode($result[0]['status']);
-            $message .= " TTFB: " . $result[0]['ttfb'];
+            $message .= " TTFB: " . $result[0]['starttransfer_time'];
 
             return $message;
         }
@@ -580,7 +618,9 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 $j            = 0;
                 $requestBatch = []; // batch for curling
                 foreach ($urls as $url) {
+                    $path = parse_url((string)$url)['path'];
 
+                    $url = (string)$url;
                     /**
                      * @todo: fix batch increments so first one isn't +1 for no reason
                      */
@@ -590,23 +630,30 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     // replace strategy execution
                     if ($replace) {
                         if ($replace == 1) { // Use site from sitemap
-                            array_push($requestBatch, $this->replaceUrlByParse($url, $requestSet['metadata']['base_url']));
+                            //array_push($requestBatch, $this->replaceUrlByParse($url, $requestSet['metadata']['base_url']));
+                            $requestBatch[$path]['current'] = $this->replaceUrlByParse($url, $requestSet['metadata']['base_url']);
                         } elseif ($replace == 2) { // Use both (side by side)
-                            array_push($requestBatch, $this->replaceUrlByParse($url, $requestSet['metadata']['base_url'])); //left
-                            array_push($requestBatch, (string)$url); // right
+                            //array_push($requestBatch, $this->replaceUrlByParse($url, $requestSet['metadata']['base_url'])); //left
+                            //array_push($requestBatch, (string)$url); // right
+                            $requestBatch[$path]['compare'] = $this->replaceUrlByParse($url, $requestSet['metadata']['base_url']);
+                            $requestBatch[$path]['current'] = (string)$url;
                         } elseif ($replace == 3) {
-                            array_push($requestBatch, $this->replaceUrl($url, $this->_options['current-url']));
-                            array_push($requestBatch, $this->replaceUrl($url, $this->_options['compare-url']));
+                            //array_push($requestBatch, $this->replaceUrl($url, $this->_options['current-url']));
+                            //array_push($requestBatch, $this->replaceUrl($url, $this->_options['compare-url']));
+                            $requestBatch[$path]['compare'] = $this->replaceUrl($url, $this->_options['current-url']);
+                            $requestBatch[$path]['current'] = $this->replaceUrl($url, $this->_options['compare-url']);
                         } else {
-                            array_push($requestBatch, (string)$url);
+                            $requestBatch[$path]['current'] = (string)$url;
+                            //array_push($requestBatch, (string)$url);
                         }
                     } else {
-                        array_push($requestBatch, (string)$url); // no replace, just crawl
+                        $requestBatch[$path]['current'] = (string)$url;
+                        //array_push($requestBatch, (string)$url); // no replace, just crawl
                     }
 
                     if ($this->_options['limit'] && $i >= $this->_options['limit']) {
 
-                        if($this->_options['batchsize']) {
+                        if ($this->_options['batchsize']) {
                             array_push($requestSet['requests'], $requestBatch);
                         }
 
