@@ -972,7 +972,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
     /**
      * @return array
      */
-    protected function prepareJsonOutput(): array
+    protected function prepareJsonOutput()
     {
         /*
          * Shim to keep compatbility with old json, which was just a
