@@ -220,44 +220,53 @@ class PerformanceCommand extends AbstractHypernodeCommand
     protected function generateTablesDataForFormat($results)
     {
         $tables = []; // all tables
-        foreach ($results as $set) {
-            $tableArray = [
-                'headers'  => false,
-                'requests' => [],
-            ]; // every table row
+        // setting placeholder var and headers
+        $tableArray = [
+            'headers'  => false,
+            'requests' => [],
+        ]; // every table row
 
-            if (count($set[0]) > 1) {
-                $tableArray['headers'] = [
-                    "current_url",
-                    "current_url_status",
-                    "current_url_response",
-                    "compare_url",
-                    "compare_url_status",
-                    "compare_url_response",
-                    "difference",
-                ];
-            } elseif (count($set[0]) == 1) {
-                $tableArray['headers'] = ["url", "status", "response"];
-            }
-
-            foreach ($set as $batch) {
-                $requestArray = [];
-                if (count($batch) > 1) {
-                    foreach ($batch as $request) {
-                        $requestArray[] = $request['url'];
-                        $requestArray[] = $request['status'];
-                        $requestArray[] = $request['ttfb'];
-                    }
-                    $requestArray[] = $batch[0]['ttfb'] - $batch[1]['ttfb'];
-                } elseif (count($batch) == 1) {
-                    $requestArray[] = $batch[0]['url'];
-                    $requestArray[] = $batch[0]['status'];
-                    $requestArray[] = $batch[0]['ttfb'];
-                }
-                array_push($tableArray['requests'], $requestArray);
-            }
-            array_push($tables, $tableArray);
+        // setting headers
+        if ($this->_options['compare-url']) {
+            $tableArray['headers'] = [
+                "URL",
+                "Status X",
+                "TTFB X",
+                "Status Y",
+                "TTFB Y",
+                "Difference",
+            ];
+        } else {
+            $tableArray['headers'] = ["URL", "Status", "TTFB"];
         }
+
+        foreach ($results as $result) { // foreach sitemap we parsed
+
+            $requestArray = [];
+
+            $parsedUrl = parse_url($result['current']['url']);
+
+            if ($this->_options['compare-url']) {
+                $requestArray[] = $parsedUrl['path'];
+            } else {
+                $requestArray[] = $result['current']['url'];
+            }
+
+
+            //$requestArray[] = $result['current']['url'];
+            $requestArray[] = $this->parseResponseCode($result['current']['status']);
+            $requestArray[] = $result['current']['ttfb'];
+
+            if (array_key_exists('compare', $result)) {
+                $requestArray[] = $this->parseResponseCode($result['compare']['status']);
+                $requestArray[] = $result['compare']['ttfb'];
+                $requestArray[] = $this->ttfbCompare($result['current']['ttfb'], $result['compare']['ttfb']);
+            }
+
+            array_push($tableArray['requests'], $requestArray);
+        }
+
+        array_push($tables, $tableArray);
 
         return $tables;
     }
@@ -347,10 +356,19 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
         foreach ($this->_batches as $set) { // sitemaps
             $batchesCount = count($this->_batches);
-            $setResults   = [];
+
+            if(!$this->_options['batchsize']) {
+                // calculate totals differently
+                $progressTotal = count($set['requests']);
+            } else {
+                $progressTotal = 0;
+                foreach($set['requests'] as $request) {
+                    $progressTotal += count($request);
+                }
+            }
 
             if (!$this->_options['silent']) {
-                $progress = new ProgressBar($output, count($set['requests']));
+                $progress = new ProgressBar($output, $progressTotal);
                 $progress->setFormat('<info> %message% </info>' . PHP_EOL . '%current%/%max% [%bar%] <comment> %percent:3s%% - %elapsed:6s%/%estimated:-6s% </comment>');
                 $progress->setMessage('Now executing batch: ' . $bi . '/' . $batchesCount . PHP_EOL);
                 $progress->start();
@@ -392,7 +410,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
                                     $result['ttfb'] = $requestInfo['total_time'];
                                 }
 
-                                file_put_contents("/tmp/test.log", $url . PHP_EOL, FILE_APPEND);
                                 $totalResult[parse_url($url)['path']][$type] = $result;
 
                             },
@@ -408,7 +425,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
             $bi++;
             $progress->finish();
-            //$progress->clear();
+            $progress->clear();
 
         }
 
@@ -583,16 +600,11 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     // replace strategy execution
                     if ($replace) {
                         if ($replace == 1) { // Use site from sitemap
-                            //array_push($requestBatch, $this->replaceUrlByParse($url, $requestSet['metadata']['base_url']));
                             $requestBatch[$path]['current'] = $this->replaceUrlByParse($url, $requestSet['metadata']['base_url']);
                         } elseif ($replace == 2) { // Use both (side by side)
-                            //array_push($requestBatch, $this->replaceUrlByParse($url, $requestSet['metadata']['base_url'])); //left
-                            //array_push($requestBatch, (string)$url); // right
                             $requestBatch[$path]['compare'] = $this->replaceUrlByParse($url, $requestSet['metadata']['base_url']);
                             $requestBatch[$path]['current'] = (string)$url;
                         } elseif ($replace == 3) {
-                            //array_push($requestBatch, $this->replaceUrl($url, $this->_options['current-url']));
-                            //array_push($requestBatch, $this->replaceUrl($url, $this->_options['compare-url']));
                             $requestBatch[$path]['compare'] = $this->replaceUrl($url, $this->_options['current-url']);
                             $requestBatch[$path]['current'] = $this->replaceUrl($url, $this->_options['compare-url']);
                         } else {
@@ -601,15 +613,10 @@ class PerformanceCommand extends AbstractHypernodeCommand
                         }
                     } else {
                         $requestBatch[$path]['current'] = (string)$url;
-                        //array_push($requestBatch, (string)$url); // no replace, just crawl
                     }
 
                     if ($this->_options['limit'] && $i >= $this->_options['limit']) {
-
-                        //if ($this->_options['batchsize']) {
                         array_push($requestSet['requests'], $requestBatch);
-                        //}
-
                         break;
                     }
 
