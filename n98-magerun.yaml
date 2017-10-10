@@ -1,7 +1,5 @@
 autoloaders:
   Hypernode: %module%/src
-autoloaders_psr4:
-  marcushat\RollingCurlX\: %module%/vendor/marcushat/rolling-curl-x/src
 
 commands:
   customCommands:
