@@ -370,6 +370,9 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 $progress->setFormat('<info> %message% </info>' . PHP_EOL . '%current%/%max% [%bar%] <comment> %percent:3s%% - %elapsed:6s%/%estimated:-6s% </comment>');
                 $progress->setMessage('Now executing batch: ' . $bi . '/' . $batchesCount . PHP_EOL);
                 $progress->start();
+            } else {
+                // Required because we always pass a $progress variable to the closure.
+                $progress = false;
             }
 
             foreach ($set['requests'] as $batch) { // the batches of requests, singular or plural
@@ -414,8 +417,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
 
                             },
-                            $options,
-                            null
+                            null,
+                            $options
                         );
                     }
                 }
