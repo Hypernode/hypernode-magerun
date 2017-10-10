@@ -609,7 +609,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
                             $requestBatch[$path]['current'] = $this->replaceUrl($url, $this->_options['compare-url']);
                         } else {
                             $requestBatch[$path]['current'] = (string)$url;
-                            //array_push($requestBatch, (string)$url);
                         }
                     } else {
                         $requestBatch[$path]['current'] = (string)$url;
