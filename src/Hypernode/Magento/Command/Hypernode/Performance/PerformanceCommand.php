@@ -357,12 +357,12 @@ class PerformanceCommand extends AbstractHypernodeCommand
         foreach ($this->_batches as $set) { // sitemaps
             $batchesCount = count($this->_batches);
 
-            if(!$this->_options['batchsize']) {
+            if (!$this->_options['batchsize']) {
                 // calculate totals differently
                 $progressTotal = count($set['requests']);
             } else {
                 $progressTotal = 0;
-                foreach($set['requests'] as $request) {
+                foreach ($set['requests'] as $request) {
                     $progressTotal += count($request);
                 }
             }
@@ -395,10 +395,11 @@ class PerformanceCommand extends AbstractHypernodeCommand
                         $RCX->addRequest(
                             $url, null,
                             function ($response, $url, $requestInfo, $userData, $time) use ($output, $progress, $type, &$totalResult) {
-                                $progress->setMessage('Now executing request: ' . $url);
-                                $progress->setMessage($this->parseStatusMessage([$requestInfo]));
-                                $progress->advance();
-
+                                if (!$this->_options['silent']) {
+                                    $progress->setMessage('Now executing request: ' . $url);
+                                    $progress->setMessage($this->parseStatusMessage([$requestInfo]));
+                                    $progress->advance();
+                                }
                                 $result           = [];
                                 $result['url']    = $url;
                                 $result['status'] = $requestInfo['http_code'];
@@ -424,8 +425,10 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
             }
             $bi++;
-            $progress->finish();
-            $progress->clear();
+            if (!$this->_options['silent']) {
+                $progress->finish();
+                $progress->clear();
+            }
 
         }
 
