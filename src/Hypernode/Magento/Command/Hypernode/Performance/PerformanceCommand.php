@@ -393,11 +393,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
                         $RCX->addRequest(
                             $url, null,
                             function ($response, $url, $requestInfo, $userData, $time) use ($output, $progress, $type, &$totalResult) {
-                                if (!$this->_options['silent']) {
-                                    $progress->setMessage('Now executing request: ' . $url);
-                                    $progress->setMessage($this->parseStatusMessage([$requestInfo]));
-                                    $progress->advance();
-                                }
                                 $result           = [];
                                 $result['url']    = $url;
                                 $result['status'] = $requestInfo['http_code'];
@@ -410,6 +405,13 @@ class PerformanceCommand extends AbstractHypernodeCommand
                                 }
 
                                 $totalResult[parse_url($url)['path']][$type] = $result;
+
+                                if (!$this->_options['silent']) {
+                                    $progress->setMessage('Now executing request: ' . $url);
+                                    $progress->setMessage($this->parseStatusMessage([$result]));
+                                    $progress->advance();
+                                }
+
 
                             },
                             $options,
@@ -455,7 +457,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
         } else { // single
             $message .= "URL: " . '<fg=white>' . $result[0]['url'] . '</>';
             $message .= " " . $this->parseResponseCode($result[0]['status']);
-            $message .= " TTFB: " . $result[0]['starttransfer_time'];
+            $message .= " TTFB: " . $result[0]['ttfb'];
 
             return $message;
         }
