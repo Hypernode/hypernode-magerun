@@ -142,7 +142,34 @@ class PerformanceCommand extends AbstractHypernodeCommand
         if ($this->_results) {
 
             if ($this->_options['silent'] && !$this->_options['format']) {
-                $output->write(json_encode($this->_results) . PHP_EOL); // hypernode internal
+
+                /*
+                 * Shim to keep compatbility with old json, which was just a
+                 * dump of the internal _results array.
+                 */
+
+                $wrapper = [];
+                $outer   = [];
+                $inner   = [];
+
+                foreach ($this->_results as $path => $result) {
+                    /** New structure maps both results (current and compare)
+                     * to an array that hangs underneath the url path,
+                     * the old structure expects everything to be in a flat
+                     * array which has the path as an extra tag called "compare_key"
+                     */
+
+                    foreach($result as $type) {
+                        $inner[] = ["url" => $type['url'], "status" => $type['status'], "ttfb" => $type['ttfb'], "comparison_key" => $path];
+                    }
+                }
+
+                // compatibility
+                array_push($outer, $inner);
+                array_push($wrapper, $outer);
+
+
+                $output->write(json_encode($wrapper) . PHP_EOL); // hypernode internal
             } else {
                 $tableHelper = $this->getHelper('table');
 
