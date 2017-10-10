@@ -297,31 +297,31 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
         foreach ($results as $result) { // foreach sitemap we parsed
 
-                    $requestArray = [];
+            $requestArray = [];
 
-                    $parsedUrl = parse_url($result['current']['url']);
+            $parsedUrl = parse_url($result['current']['url']);
 
-                    if ($this->_options['compare-url']) {
-                        $requestArray[] = $parsedUrl['path'];
-                    } else {
-                        $requestArray[] = $result['current']['url'];
-                    }
+            if ($this->_options['compare-url']) {
+                $requestArray[] = $parsedUrl['path'];
+            } else {
+                $requestArray[] = $result['current']['url'];
+            }
 
 
-                    //$requestArray[] = $result['current']['url'];
-                    $requestArray[] = $this->parseResponseCode($result['current']['status']);
-                    $requestArray[] = $result['current']['ttfb'];
+            //$requestArray[] = $result['current']['url'];
+            $requestArray[] = $this->parseResponseCode($result['current']['status']);
+            $requestArray[] = $result['current']['ttfb'];
 
-                    if (array_key_exists('compare', $result)) {
-                        $requestArray[] = $this->parseResponseCode($result['compare']['status']);
-                        $requestArray[] = $result['compare']['ttfb'];
-                        $requestArray[] = $this->ttfbCompare($result['current']['ttfb'], $result['compare']['ttfb']);
-                    }
+            if (array_key_exists('compare', $result)) {
+                $requestArray[] = $this->parseResponseCode($result['compare']['status']);
+                $requestArray[] = $result['compare']['ttfb'];
+                $requestArray[] = $this->ttfbCompare($result['current']['ttfb'], $result['compare']['ttfb']);
+            }
 
-                    array_push($tableArray['requests'], $requestArray);
-                }
+            array_push($tableArray['requests'], $requestArray);
+        }
 
-                array_push($tables, $tableArray);
+        array_push($tables, $tableArray);
 
         return $tables;
     }
@@ -346,9 +346,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
         $bi = 1; // batch number
 
         foreach ($this->_batches as $set) { // sitemaps
-            //$batchesCount = count($set['requests']);
             $batchesCount = count($this->_batches);
-            $setResults = [];
+            $setResults   = [];
 
             if (!$this->_options['silent']) {
                 $progress = new ProgressBar($output, count($set['requests']));
@@ -358,9 +357,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
 
             foreach ($set['requests'] as $batch) { // the batches of requests, singular or plural
-
-                $batchResult = [];
-
 
                 $RCX = new RollingCurlX(count($batch));
 
@@ -396,8 +392,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
                                     $result['ttfb'] = $requestInfo['total_time'];
                                 }
 
+                                file_put_contents("/tmp/test.log", $url . PHP_EOL, FILE_APPEND);
                                 $totalResult[parse_url($url)['path']][$type] = $result;
-                                //array_push($batchResult, $result);
 
                             },
                             $options,
@@ -487,41 +483,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
         }
 
         return $response;
-    }
-
-    /**
-     * A simple Curl function used to process the requests.
-     *
-     * @param $url
-     *
-     * @return array
-     */
-    protected function simpleCurl($url)
-    {
-        $result = [];
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        # Identify as a known crawler so we don't bypass the Varnish cache on shops with magento-turpentine 0.1.6 or later
-        # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/CHANGELOG.md#release-016
-        # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/app/code/community/Nexcessnet/Turpentine/etc/config.xml#L66
-        curl_setopt($ch, CURLOPT_USERAGENT, "ApacheBench/2.3");
-        curl_exec($ch);
-
-        $result['url']    = $url;
-        $result['status'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $result['ttfb']   = curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME);
-        if (!$this->_totalTime) {
-            $result['ttfb'] = curl_getinfo($ch, CURLINFO_STARTTRANSFER_TIME);
-        } else {
-            $result['ttfb'] = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
-        }
-
-        curl_close($ch);
-
-        return $result;
     }
 
     /**
@@ -618,7 +579,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
                      * @todo: fix batch increments so first one isn't +1 for no reason
                      */
 
-                    //$requestBatch = []; // batch for curling
 
                     // replace strategy execution
                     if ($replace) {
@@ -655,6 +615,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
                     if (!$this->_options['batchsize']) {
                         array_push($requestSet['requests'], $requestBatch);
+                        $requestBatch = [];
                     } else {
                         if ($j >= $this->_options['batchsize']) {
                             array_push($requestSet['requests'], $requestBatch);
