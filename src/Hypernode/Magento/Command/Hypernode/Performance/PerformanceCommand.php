@@ -253,7 +253,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
 
 
-            //$requestArray[] = $result['current']['url'];
             $requestArray[] = $this->parseResponseCode($result['current']['status']);
             $requestArray[] = $result['current']['ttfb'];
 
@@ -317,7 +316,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
             }
 
 
-            //$requestArray[] = $result['current']['url'];
             $requestArray[] = $this->parseResponseCode($result['current']['status']);
             $requestArray[] = $result['current']['ttfb'];
 
