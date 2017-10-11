@@ -974,36 +974,43 @@ class PerformanceCommand extends AbstractHypernodeCommand
      */
     protected function prepareJsonOutput()
     {
-        /*
-         * Shim to keep compatbility with old json, which was just a
-         * dump of the internal _results array.
-         */
-
         /**
-         * If no url flags are passed, use the path as the comparison key
-         * If --compare-url AND --current-url are passed, use the url as comparison key
+         * Shim to keep compatbility with old json format, which was just a
+         * dump of the internal _results array.
+         *
+         * Edgecases:
+         *
+         * If no url flags are passed, use the url as the comparison key
+         * If --compare-url AND --current-url are passed, use the path as comparison key
          * If ONLY --current-url is passed, use "false" as comparison key
+         *
+         * magerun2 hypernode:performance --sitemap=sitemap.txt --silent --current-url a.dev --compare-url b.dev => comparison_key = $path
+         * magerun2 hypernode:performance --sitemap=sitemap.txt --silent --current-url a.dev = comparison_key => false
+         * magerun2 hypernode:performance --sitemap=sitemap.txt --silent  = comparison_key => $url
          */
 
         $wrapper = [];
         $outer   = [];
 
         foreach ($this->_results as $path => $result) {
-            $inner   = [];
-            /** New structure maps both results (current and compare)
+            $inner = [];
+
+            /**
+             * New (internal) structure maps both results (current and compare)
              * to an array that hangs underneath the url path,
-             * the old structure expects everything to be in a flat
-             * arrays which has the path as an extra tag called "compare_key"
+             * the old structure expects everything to be in an array, which has
+             * another array inside, which has arrays in it, where the bottom layer
+             * of arrays consist of everything with matching comparison_key tags
              */
 
             foreach ($result as $type) {
 
-                $comparisonKey = $path;
+                $comparisonKey = $type['url'];
 
-                if($this->_options['current-url'] && !$this->_options['compare-url']) {
+                if ($this->_options['current-url'] && !$this->_options['compare-url']) {
                     $comparisonKey = false;
-                } elseif($this->_options['current-url'] && $this->_options['compare-url']) {
-                    $comparisonKey = $type['url'];
+                } elseif ($this->_options['current-url'] && $this->_options['compare-url']) {
+                    $comparisonKey = $path;
                 }
 
                 $inner[] = [
