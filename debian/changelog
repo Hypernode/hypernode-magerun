@@ -1,3 +1,10 @@
+magerun-hypernode (20171011.141123) xenial; urgency=medium
+
+  [ Tickles Bv ]
+  * Fixed issue where text sitemaps would add an empty xml line at the end, breaking the parser
+
+ -- Rick van de Loo <vdloo@workstation4>  Wed, 11 Oct 2017 14:11:23 +0200
+
 magerun-hypernode (20171011.105637) xenial; urgency=medium
 
   [ Rick van de Loo ]
