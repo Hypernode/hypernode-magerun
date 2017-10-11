@@ -9,6 +9,8 @@ class FileSystem
 
     public static function isAbsolutePath($file)
     {
+        /** copied from http://symfony.com/doc/current/components/filesystem.html */
+
         return strspn($file, '/\\', 0, 1)
             || (strlen($file) > 3 && ctype_alpha($file[0])
                 && substr($file, 1, 1) === ':'
