@@ -979,6 +979,12 @@ class PerformanceCommand extends AbstractHypernodeCommand
          * dump of the internal _results array.
          */
 
+        /**
+         * If no url flags are passed, use the path as the comparison key
+         * If --compare-url AND --current-url are passed, use the url as comparison key
+         * If ONLY --current-url is passed, use "false" as comparison key
+         */
+
         $wrapper = [];
         $outer   = [];
 
@@ -991,11 +997,20 @@ class PerformanceCommand extends AbstractHypernodeCommand
              */
 
             foreach ($result as $type) {
+
+                $comparisonKey = $path;
+
+                if($this->_options['current-url'] && !$this->_options['compare-url']) {
+                    $comparisonKey = false;
+                } elseif($this->_options['current-url'] && $this->_options['compare-url']) {
+                    $comparisonKey = $type['url'];
+                }
+
                 $inner[] = [
                     "url"            => $type['url'],
                     "status"         => $type['status'],
                     "ttfb"           => $type['ttfb'],
-                    "comparison_key" => $path,
+                    "comparison_key" => $comparisonKey,
                 ];
             }
             array_push($outer, $inner);
