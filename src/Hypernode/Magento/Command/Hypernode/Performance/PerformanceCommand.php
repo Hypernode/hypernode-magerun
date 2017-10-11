@@ -17,6 +17,7 @@ namespace Hypernode\Magento\Command\Hypernode\Performance;
 
 
 use Hypernode\Magento\Command\AbstractHypernodeCommand;
+use Hypernode\Util\FileSystem;
 use Hypernode\Util\RollingCurlX;
 use N98\Util\Console\Helper\Table\Renderer\RendererFactory;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -56,6 +57,9 @@ class PerformanceCommand extends AbstractHypernodeCommand
      * @var bool
      */
     protected $_totalTime = false;
+
+    /** currently allowed sitemap filetypes  */
+    const SITEMAP_ALLOWED_TYPES = ['application/xml', 'text/plain'];
 
     /**
      * Configure Command
@@ -526,51 +530,13 @@ class PerformanceCommand extends AbstractHypernodeCommand
             $requestSet             = []; // a sitemap
             $requestSet['metadata'] = $sitemap;
 
-            $xml = '';
-
-            // Getting the XML from URL & validate it
-            if (isset($sitemap['sitemap_url'])) {
-                if ($this->validateUrl($sitemap['sitemap_url'])) {
-                    try {
-                        $curl = $this->getCurl();
-                        $curl->get($sitemap['sitemap_url']);
-                        if ($curl->http_status_code == '200') {
-                            try {
-                                $xml = new \SimpleXMLElement($curl->response);
-                            } catch (\Exception $e) {
-                                $output->writeln('<error>' . $e->getMessage() . ' ' . $sitemap['sitemap_url'] . '</error>');
-                                continue;
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        $output->writeln('<error>An error occured while getting the sitemap: ' . $e->getMessage() . '</error>');
-                        continue;
-                    }
-                } else {
-                    $output->writeln('<error>The URL: ' . $sitemap['sitemap_url'] . ' is not valid.</error>');
-                    continue;
-                }
-
-                // getting the sitemap from a file
-            } else {
-                if (file_exists($this->_magentoRootFolder . $sitemap['relative_path'])) {
-                    try {
-                        $xml = new \SimpleXMLElement(file_get_contents($this->_magentoRootFolder . $sitemap['relative_path']));
-                    } catch (\Exception $e) {
-                        $output->writeln('<error>' . $e->getMessage() . ' ' . $sitemap['relative_path'] . '</error>');
-                        continue;
-                    }
-
-                    // converting a txt of urls to magento sitemap structure (hypernode internal)
-                } elseif (file_exists($sitemap['relative_path'])) {
-                    $path_exploded = explode('.', $sitemap['relative_path']);
-                    if (end($path_exploded) == 'txt') {
-                        $xml = new \SimpleXMLElement($this->convertTxtToXml(file($sitemap['relative_path'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)));
-                    } else {
-                        $output->writeln('<error>Only a txt url list is currently supported for absolute paths.</error>');
-                    }
-                }
+            try {
+                $xml = $this->getSiteMapXml($sitemap);
+            } catch (\Exception $e) {
+                $output->writeln('<error>'.$e->getMessage().'</error>');
+                continue;
             }
+
 
             // creating batches
             if ($xml) {
@@ -815,9 +781,9 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     $parsedUrl = parse_url($options['sitemap']);
                     array_push(
                         $sitemaps, [
-                                     'relative_path' => $parsedUrl['path'],
-                                     'sitemap_url'   => $options['sitemap'],
-                                     'base_url'      => $options['current-url'],
+                                     'path'        => $parsedUrl['path'],
+                                     'sitemap_url' => $options['sitemap'],
+                                     'base_url'    => $options['current-url'],
                                  ]
                     );
                 } else {
@@ -833,36 +799,12 @@ class PerformanceCommand extends AbstractHypernodeCommand
         } else {
             $str = $options['sitemap'];
 
-            if (substr($options['sitemap'], 0, 1) != '/') {
-                $str      = DIRECTORY_SEPARATOR . $str;
-                $pathType = 'relative';
-            } else {
-                $pathType = 'absolute';
-            }
-
-            if ($pathType == 'relative') {
-                if (file_exists($this->_magentoRootFolder . $str)) {
-                    array_push(
-                        $sitemaps, [
-                                     'relative_path' => $str,
-                                     'base_url'      => $options['current-url'],
-                                 ]
-                    );
-                } else {
-                    return false;
-                }
-            } elseif ($pathType == 'absolute') {
-                if (file_exists($str)) {
-                    array_push(
-                        $sitemaps, [
-                                     'relative_path' => $str,
-                                     'base_url'      => $options['current-url'],
-                                 ]
-                    );
-                } else {
-                    return false;
-                }
-            }
+            array_push(
+                $sitemaps, [
+                             'path'     => $str,
+                             'base_url' => $options['current-url'],
+                         ]
+            );
         }
 
         return $sitemaps;
@@ -915,14 +857,14 @@ class PerformanceCommand extends AbstractHypernodeCommand
         $helper   = $this->getHelper('question');
         $question = new ChoiceQuestion(
             '<question>Please select one or more sitemaps. - use numbers, comma seperated for multi</question>',
-            array_column($sitemapCollection, 'relative_path')
+            array_column($sitemapCollection, 'path')
         );
         $question->setMultiselect(true);
 
         $answer = $helper->ask($input, $output, $question);
 
         foreach ($sitemapCollection as $sitemap) {
-            if (in_array($sitemap['relative_path'], $answer)) {
+            if (in_array($sitemap['path'], $answer)) {
                 $sitemaps[] = $sitemap;
             }
         }
@@ -943,16 +885,16 @@ class PerformanceCommand extends AbstractHypernodeCommand
         $collection = \Mage::getModel('sitemap/sitemap')->getCollection();
 
         foreach ($collection as $item) {
-            $store                    = \Mage::getModel('core/store')
-                                             ->load($item->getStoreId());
-            $sitemap['store_id']      = $item->getStoreId();
-            $sitemap['store_active']  = $store->getIsActive() ? 'Yes' : 'No';
-            $sitemap['store_code']    = $store->getCode();
-            $sitemap['relative_path'] = $item->getSitemapPath() . $item->getSitemapFilename();
-            $sitemap['sitemap_time']  = $item->getSitemapTime();
-            $sitemap['base_url']      = \Mage::app()
-                                             ->getStore($sitemap['store_id'])
-                                             ->getBaseUrl(\Mage_Core_Model_Store::URL_TYPE_LINK);
+            $store                   = \Mage::getModel('core/store')
+                                            ->load($item->getStoreId());
+            $sitemap['store_id']     = $item->getStoreId();
+            $sitemap['store_active'] = $store->getIsActive() ? 'Yes' : 'No';
+            $sitemap['store_code']   = $store->getCode();
+            $sitemap['path']         = $item->getSitemapPath() . $item->getSitemapFilename();
+            $sitemap['sitemap_time'] = $item->getSitemapTime();
+            $sitemap['base_url']     = \Mage::app()
+                                            ->getStore($sitemap['store_id'])
+                                            ->getBaseUrl(\Mage_Core_Model_Store::URL_TYPE_LINK);
             array_push($sitemaps, $sitemap);
         }
 
@@ -1029,5 +971,91 @@ class PerformanceCommand extends AbstractHypernodeCommand
         array_push($wrapper, $outer);
 
         return $wrapper;
+    }
+
+    /**
+     * @param $sitemap
+     *
+     * @return array
+     * @throws \Exception
+     */
+    protected function getSitemapXmlFromFile($sitemap)
+    {
+        /**
+         * Figure out if the path we've been passed is an absolute or a relative one,
+         * if it is relative, prepend magento root folder to it.
+         *
+         * Check if it exists, then check if it is one of the allowed filetypes
+         * ([txt,xml]) and transform, parse, and return it.
+         */
+
+        if (FileSystem::isAbsolutePath($sitemap['path'])) {
+            /** path is absolute, pass it to the parser */
+            $path = $sitemap['path'];
+
+        } else {
+            /** path is relative, prepend the root dir to it */
+            $path = $this->_magentoRootFolder . '/' . $sitemap['path'];
+        }
+
+        if (!file_exists($path)) {
+            throw new \Exception('File with path: ' . $path . ' not found, please check path.');
+
+        }
+
+        $type = mime_content_type($path);
+        if (!in_array($type, self::SITEMAP_ALLOWED_TYPES)) {
+            throw new \Exception('Invalid sitemap type passed, should be: ' . implode(',', self::SITEMAP_ALLOWED_TYPES));
+        }
+
+        if ($type === 'text/plain') {
+            $xml = new \SimpleXMLElement($this->convertTxtToXml(file($sitemap['path'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)));
+        } elseif ($type === 'application/xml') {
+            $xml = new \SimpleXMLElement(file_get_contents($path));
+        }
+
+        return $xml;
+    }
+
+    /**
+     * @param                 $sitemap
+     *
+     */
+    protected function getSiteMapXmlFromUrl($sitemap)
+    {
+        if (!$this->validateUrl($sitemap['sitemap_url'])) {
+            throw new \Exception('The url: ' . $sitemap['sitemap_url'] . ' is not valid.');
+        }
+
+        $curl = $this->getCurl();
+        $curl->get($sitemap['sitemap_url']);
+
+        if (!$curl->http_status_code == '200') {
+            throw new \Exception('Sitemap url with url: ' . $sitemap['sitemap_url'] . ' return status code: ' . $curl->http_status_code);
+        }
+
+        $xml = new \SimpleXMLElement($curl->response);
+
+        return $xml;
+
+    }
+
+
+    /**
+     * @param                 $sitemap
+     *
+     * @return array
+     */
+    protected function getSiteMapXml($sitemap)
+    {
+        // Getting the XML from URL & validate it
+        if (isset($sitemap['sitemap_url'])) {
+            $xml = $this->getSiteMapXmlFromUrl($sitemap);
+        } else {
+            // getting the sitemap from a file
+            $xml = $this->getSitemapXmlFromFile($sitemap);
+        }
+
+        return $xml;
     }
 }
