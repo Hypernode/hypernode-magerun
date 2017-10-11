@@ -976,7 +976,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
     /**
      * @param $sitemap
      *
-     * @return array
      * @throws \Exception
      */
     protected function getSitemapXmlFromFile($sitemap)
@@ -1005,7 +1004,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
         $type = mime_content_type($path);
         if (!in_array($type, self::SITEMAP_ALLOWED_TYPES)) {
-            throw new \Exception('Invalid sitemap type passed, should be: ' . implode(',', self::SITEMAP_ALLOWED_TYPES));
+            throw new \Exception('Invalid sitemap type: ' . $type . ' passed for: '. $path .' , should be: ' . implode(', ', self::SITEMAP_ALLOWED_TYPES));
         }
 
         if ($type === 'text/plain') {
