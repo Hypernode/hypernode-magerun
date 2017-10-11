@@ -1,3 +1,30 @@
+magerun-hypernode (20171011.105637) xenial; urgency=medium
+
+  [ Rick van de Loo ]
+  * remove dput echo from buildscript
+
+  [ Tickles Bv ]
+  * Split up request into batches of right size
+  * Hardcode in RollingCurlX and enable multithreading for requests
+  * Move RollingCurlX to Hypernode namespace, update table generator to work
+  * Fix building up batches when not in multithread mode
+  * Replace generateTablesDataForFormat function with new code from generateTablesData
+  * Remove unused psr4 autoloader yaml tag
+  * Readd require php part to composer.json
+  * Remove commented out line
+  * Check if output is silenced before having threads mess with nonexistant progressbar
+  * Remove commented out code
+  * Return the right response for magerun and magerun2
+  * Put $options in the right place so we pass the correct curl options to the processes
+  * Add shim for json output
+  * Code format
+  * Remove return types to keep php5 compatibility
+  * Change json shim to correct output
+  * Add edgecases to json generation
+  * Add documentation and use (hopefully) the right comparison key tags in each situation
+
+ -- Rick van de Loo <vdloo@workstation4>  Wed, 11 Oct 2017 10:56:40 +0200
+
 magerun-hypernode (20170911.121513) xenial; urgency=medium
 
   [ frosit ]
