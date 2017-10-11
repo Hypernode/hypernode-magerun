@@ -981,13 +981,13 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
         $wrapper = [];
         $outer   = [];
-        $inner   = [];
 
         foreach ($this->_results as $path => $result) {
+            $inner   = [];
             /** New structure maps both results (current and compare)
              * to an array that hangs underneath the url path,
              * the old structure expects everything to be in a flat
-             * array which has the path as an extra tag called "compare_key"
+             * arrays which has the path as an extra tag called "compare_key"
              */
 
             foreach ($result as $type) {
@@ -998,10 +998,10 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     "comparison_key" => $path,
                 ];
             }
+            array_push($outer, $inner);
         }
 
         // compatibility
-        array_push($outer, $inner);
         array_push($wrapper, $outer);
 
         return $wrapper;
