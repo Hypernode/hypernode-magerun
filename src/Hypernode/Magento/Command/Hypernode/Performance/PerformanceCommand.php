@@ -565,7 +565,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 } elseif (file_exists($sitemap['relative_path'])) {
                     $path_exploded = explode('.', $sitemap['relative_path']);
                     if (end($path_exploded) == 'txt') {
-                        $xml = new \SimpleXMLElement($this->convertTxtToXml(file_get_contents($sitemap['relative_path'])));
+                        $xml = new \SimpleXMLElement($this->convertTxtToXml(file($sitemap['relative_path'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)));
                     } else {
                         $output->writeln('<error>Only a txt url list is currently supported for absolute paths.</error>');
                     }
@@ -599,6 +599,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     $path = parse_url((string)$url)['path'];
 
                     $url = (string)$url;
+
+
                     /**
                      * @todo: fix batch increments so first one isn't +1 for no reason
                      */
@@ -653,15 +655,15 @@ class PerformanceCommand extends AbstractHypernodeCommand
      *
      * @note could be used for auto generating if no sitemaps available
      *
-     * @param $txt
+     * @param array $urls
      *
      * @return string
      */
-    protected function convertTxtToXml($txt)
+    protected function convertTxtToXml($urls)
     {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        foreach (explode("\n", $txt) as $url) {
+        foreach ($urls as $url) {
             $xml .= '<url><loc>' . $url . '</loc></url>';
         }
         $xml .= '</urlset>';
