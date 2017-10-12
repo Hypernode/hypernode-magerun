@@ -1,3 +1,21 @@
+magerun-hypernode (20171012.095610) xenial; urgency=medium
+
+  [ Tickles Bv ]
+  * Added FileSystem class with static method to determine if path is absolute or relative
+  * Added symfony class we copied the method from
+  * Refactored the sitemap xml generator to get rid of some of weird things: it now properly checks whether a path is relative or not before trying to load it inside the magento root folder, it now properly checks whether the file is xml or txt and handles this accordingly (so you can use txt files outside of absolute paths, and vice versa). The logic and error handling is cleared up, and I've added some documentation
+  * Clarify mimetype exception
+  * Added FileSystem class with static method to determine if path is absolute or relative
+  * Added symfony class we copied the method from
+  * Refactored the sitemap xml generator to get rid of some of weird things: it now properly checks whether a path is relative or not before trying to load it inside the magento root folder, it now properly checks whether the file is xml or txt and handles this accordingly (so you can use txt files outside of absolute paths, and vice versa). The logic and error handling is cleared up, and I've added some documentation
+  * Clarify mimetype exception
+  * Added newline to EOF
+  * Move SITEMAP_ALLOWED_TYPES from const to variable local to function in order to preserve php5.5 compatibiltity
+
+  [ Rick van de Loo ]
+
+ -- Rick van de Loo <vdloo@workstation4>  Thu, 12 Oct 2017 09:56:12 +0200
+
 magerun-hypernode (20171011.141123) xenial; urgency=medium
 
   [ Tickles Bv ]
