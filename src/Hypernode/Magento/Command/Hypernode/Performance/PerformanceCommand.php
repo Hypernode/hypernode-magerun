@@ -58,8 +58,6 @@ class PerformanceCommand extends AbstractHypernodeCommand
      */
     protected $_totalTime = false;
 
-    /** currently allowed sitemap filetypes  */
-    const SITEMAP_ALLOWED_TYPES = ['application/xml', 'text/plain'];
 
     /**
      * Configure Command
@@ -988,6 +986,10 @@ class PerformanceCommand extends AbstractHypernodeCommand
          * ([txt,xml]) and transform, parse, and return it.
          */
 
+        /** currently allowed sitemap filetypes  */
+         $sitemapAllowedTypes = ['application/xml', 'text/plain'];
+
+
         if (FileSystem::isAbsolutePath($sitemap['path'])) {
             /** path is absolute, pass it to the parser */
             $path = $sitemap['path'];
@@ -1003,8 +1005,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
         }
 
         $type = mime_content_type($path);
-        if (!in_array($type, self::SITEMAP_ALLOWED_TYPES)) {
-            throw new \Exception('Invalid sitemap type: ' . $type . ' passed for: '. $path .' , should be: ' . implode(', ', self::SITEMAP_ALLOWED_TYPES));
+        if (!in_array($type, $sitemapAllowedTypes)) {
+            throw new \Exception('Invalid sitemap type: ' . $type . ' passed for: '. $path .' , should be: ' . implode(', ', $sitemapAllowedTypes));
         }
 
         if ($type === 'text/plain') {
