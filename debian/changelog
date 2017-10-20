@@ -1,3 +1,10 @@
+magerun-hypernode (20171020.112815) xenial; urgency=medium
+
+  [ Rick van de Loo ]
+  * strip leading slash from relative sitemaps
+
+ -- vdloo <vdloo@asuran>  Fri, 20 Oct 2017 11:28:16 +0200
+
 magerun-hypernode (20171012.095610) xenial; urgency=medium
 
   [ Tickles Bv ]
