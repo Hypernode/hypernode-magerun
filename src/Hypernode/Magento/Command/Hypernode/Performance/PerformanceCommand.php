@@ -889,6 +889,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
             $sitemap['store_active'] = $store->getIsActive() ? 'Yes' : 'No';
             $sitemap['store_code']   = $store->getCode();
             $sitemap['path']         = $item->getSitemapPath() . $item->getSitemapFilename();
+            $sitemap['path']         = ltrim($sitemap['path'], '/');
             $sitemap['sitemap_time'] = $item->getSitemapTime();
             $sitemap['base_url']     = \Mage::app()
                                             ->getStore($sitemap['store_id'])
