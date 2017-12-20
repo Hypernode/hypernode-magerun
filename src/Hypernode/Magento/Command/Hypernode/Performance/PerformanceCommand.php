@@ -190,6 +190,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
         # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/CHANGELOG.md#release-016
         # https://github.com/nexcess/magento-turpentine/blob/e3577315cdd8fb35b1bff812d2cf1b61e1b76c13/app/code/community/Nexcessnet/Turpentine/etc/config.xml#L66
         curl_setopt($ch, CURLOPT_USERAGENT, "ApacheBench/2.3");
+        curl_setopt($ch, CURLOPT_ENCODING, "br, gzip, deflate, identity, \"\"");
         curl_exec($ch);
 
         return curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
