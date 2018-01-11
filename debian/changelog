@@ -1,3 +1,10 @@
+magerun-hypernode (20180111.215526) trusty; urgency=medium
+
+  [ Fabio Ros ]
+  * Remove ignoring platform requirements in travis setup
+
+ -- vdloo <vdloo@asuran>  Thu, 11 Jan 2018 21:55:27 +0100
+
 magerun-hypernode (20171220.095026) xenial; urgency=medium
 
   * cache warmer accepts brotli encoding
