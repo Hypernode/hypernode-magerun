@@ -1,3 +1,11 @@
+magerun-hypernode (20180112.220302) trusty; urgency=medium
+
+  [ Fabio Ros ]
+  * Fix and extended test for #68
+  * reload modules after placing config files
+
+ -- vdloo <vdloo@asuran>  Fri, 12 Jan 2018 22:03:03 +0100
+
 magerun-hypernode (20180111.215526) trusty; urgency=medium
 
   [ Fabio Ros ]
