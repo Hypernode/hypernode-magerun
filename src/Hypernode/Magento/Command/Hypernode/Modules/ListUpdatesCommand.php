@@ -183,7 +183,7 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
      * @param $namespace
      * @return bool|string|null
      */
-    protected function getExtensionVersion($namespace)
+    public function getExtensionVersion($namespace)
     {
         /**
          * Is it in config cache?
@@ -192,19 +192,13 @@ class ListUpdatesCommand extends AbstractHypernodeCommand
             return $versionFromCache;
         }
 
-        $moduleDir = \Mage::getConfig()->getModuleDir('etc', $namespace);
+        $configFile = \Mage::getConfig()->getModuleDir('etc', $namespace) . DIRECTORY_SEPARATOR . 'config.xml';
+        $xml = new \Varien_Simplexml_Config();
 
-        if (file_exists($moduleDir)) {
-
-            $configFile = $moduleDir . DIRECTORY_SEPARATOR . 'config.xml';
-
-            if ($xml = file_get_contents($configFile)) {
-
-                $config = new \Varien_Simplexml_Config($xml);
-
-                if ($version = $config->getNode('modules')->descend($namespace)->asArray()) {
-                    return $version['version'];
-                }
+        if (file_exists($configFile) && $xml->loadFile($configFile) && $config = $xml->getNode('modules')) {
+            $config = $config->asArray();
+            if ($version = $config[$namespace]['version']) {
+                return $version;
             }
         }
 

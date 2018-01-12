@@ -166,4 +166,67 @@ class ListUpdatesCommandTest extends TestCase
         $this->assertNotContains('(inactive)', $result);
     }
 
+    public function testFaultyModulesConfig()
+    {
+        /** @var \Hypernode\Magento\Command\Hypernode\Modules\ListUpdatesCommand $command */
+        $command = $this->getCommand();
+        $rootDir = $this->getTestMagentoRoot();
+
+        $testModuleVendor = 'Frosit';
+        $testModuleName = 'Test';
+        $testModuleNamespace = $testModuleVendor . '_' . $testModuleName;
+        $testModuleCodePool = 'local';
+        $testModuleVersion = '0.1.0';
+
+        $testEtcFile = $rootDir . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $testModuleNamespace.'.xml';
+        $testModuleDir = $rootDir . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'code' . DIRECTORY_SEPARATOR . $testModuleCodePool . DIRECTORY_SEPARATOR . $testModuleVendor . DIRECTORY_SEPARATOR . $testModuleName;
+        $testModuleConfigFile = $testModuleDir . DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'config.xml';
+
+        $etcFileTemplate = '<?xml version="1.0"?>
+        <config>
+            <modules>
+                <'.$testModuleNamespace.'>
+                    <active>false</active>
+                    <codePool>' . $testModuleCodePool . '</codePool>
+                </'.$testModuleNamespace.'>
+            </modules>
+        </config>
+        ';
+
+        $moduleConfigFileTemplate = '<?xml version="1.0"?>
+        <config>
+            <modules>
+                <'.$testModuleNamespace.'>
+                    <version>'.$testModuleVersion.'</version>
+                </'.$testModuleNamespace.'>
+            </modules>
+        </config>
+        ';
+
+        // Create directory if not exists
+        if (!file_exists($testModuleDir . DIRECTORY_SEPARATOR . 'etc')) {
+            mkdir($testModuleDir . DIRECTORY_SEPARATOR . 'etc', 0755, true);
+        }
+
+        // Place config files
+        file_put_contents($testEtcFile, $etcFileTemplate);
+        file_put_contents($testModuleConfigFile,$moduleConfigFileTemplate);
+
+        $version = $command->getExtensionVersion($testModuleNamespace);
+        $this->assertEquals($testModuleVersion,$version,'Version does not match expected');
+
+        file_put_contents($testModuleConfigFile,'<?xml version="1.0"?><config></config>');
+
+        $version = $command->getExtensionVersion($testModuleNamespace);
+        $this->assertNull($version,'Version was not null');
+
+        unlink($testModuleConfigFile);
+
+        $version = $command->getExtensionVersion($testModuleNamespace);
+
+        $this->assertNull($version,'Version was not null');
+
+        unlink($testEtcFile);
+    }
+
 }
