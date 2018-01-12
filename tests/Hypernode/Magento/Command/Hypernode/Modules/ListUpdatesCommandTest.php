@@ -183,25 +183,23 @@ class ListUpdatesCommandTest extends TestCase
         $testModuleConfigFile = $testModuleDir . DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'config.xml';
 
         $etcFileTemplate = '<?xml version="1.0"?>
-        <config>
-            <modules>
-                <'.$testModuleNamespace.'>
-                    <active>false</active>
-                    <codePool>' . $testModuleCodePool . '</codePool>
-                </'.$testModuleNamespace.'>
-            </modules>
-        </config>
-        ';
+<config>
+    <modules>
+        <'.$testModuleNamespace.'>
+            <active>false</active>
+            <codePool>' . $testModuleCodePool . '</codePool>
+        </'.$testModuleNamespace.'>
+    </modules>
+</config>';
 
         $moduleConfigFileTemplate = '<?xml version="1.0"?>
-        <config>
-            <modules>
-                <'.$testModuleNamespace.'>
-                    <version>'.$testModuleVersion.'</version>
-                </'.$testModuleNamespace.'>
-            </modules>
-        </config>
-        ';
+<config>
+    <modules>
+        <'.$testModuleNamespace.'>
+            <version>'.$testModuleVersion.'</version>
+        </'.$testModuleNamespace.'>
+    </modules>
+</config>';
 
         // Create directory if not exists
         if (!file_exists($testModuleDir . DIRECTORY_SEPARATOR . 'etc')) {
@@ -209,22 +207,27 @@ class ListUpdatesCommandTest extends TestCase
         }
 
         // Place config files
-        file_put_contents($testEtcFile, $etcFileTemplate);
-        file_put_contents($testModuleConfigFile,$moduleConfigFileTemplate);
+        if(file_put_contents($testEtcFile, $etcFileTemplate) && file_put_contents($testModuleConfigFile,$moduleConfigFileTemplate)){
+            if(file_exists($testModuleConfigFile) && file_exists($testEtcFile)){
 
-        $version = $command->getExtensionVersion($testModuleNamespace);
-        $this->assertEquals($testModuleVersion,$version,'Version does not match expected');
+                \Mage::getConfig()->loadModules(); // reload config
 
-        file_put_contents($testModuleConfigFile,'<?xml version="1.0"?><config></config>');
+                $version = $command->getExtensionVersion($testModuleNamespace);
+                $this->assertEquals($testModuleVersion,$version,'Version does not match expected 0.1.0');
+            }
+        } else {
+            $this->markTestSkipped('Could not place module config file(s)');
+        }
 
-        $version = $command->getExtensionVersion($testModuleNamespace);
-        $this->assertNull($version,'Version was not null');
+        if(file_put_contents($testModuleConfigFile,'<?xml version="1.0"?><config></config>')){
+            $version = $command->getExtensionVersion($testModuleNamespace);
+            $this->assertNull($version,'Version was not null');
+        }
 
-        unlink($testModuleConfigFile);
-
-        $version = $command->getExtensionVersion($testModuleNamespace);
-
-        $this->assertNull($version,'Version was not null');
+        if(unlink($testModuleConfigFile)){
+            $version = $command->getExtensionVersion($testModuleNamespace);
+            $this->assertNull($version,'Version was not null for non-existing module config');
+        }
 
         unlink($testEtcFile);
     }
