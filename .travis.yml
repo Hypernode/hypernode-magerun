@@ -7,7 +7,6 @@ branches:
     - staging
 
 php:
-  - 5.4
   - 5.5
 
 env:
@@ -39,13 +38,13 @@ matrix:
   exclude:
     # Old Magento Versions are not officially supported to run with PHP 5.5
     - php: 5.5
-      env: MAGENTO_VERSION="magento-mirror-1.4.2.0" DB=mysql INSTALL_SAMPLE_DATA=yes
+      env: MAGENTO_VERSION="magento-mirror-1.4.2.0" INSTALL_SAMPLE_DATA=yes
     - php: 5.5
-      env: MAGENTO_VERSION="magento-mirror-1.5.1.0" DB=mysql INSTALL_SAMPLE_DATA=yes
+      env: MAGENTO_VERSION="magento-mirror-1.5.1.0" INSTALL_SAMPLE_DATA=yes
     - php: 5.5
-      env: MAGENTO_VERSION="magento-mirror-1.6.2.0" DB=mysql INSTALL_SAMPLE_DATA=yes
+      env: MAGENTO_VERSION="magento-mirror-1.6.2.0" INSTALL_SAMPLE_DATA=yes
     - php: 5.5
-      env: MAGENTO_VERSION="magento-mirror-1.7.0.2" DB=mysql INSTALL_SAMPLE_DATA=no
+      env: MAGENTO_VERSION="magento-mirror-1.7.0.2" INSTALL_SAMPLE_DATA=no
   include:
     # Lint PHP code with PHP 7.0
     - php: 7.0
