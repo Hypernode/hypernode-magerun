@@ -1,10 +1,14 @@
 language: php
 sudo: false
+dist: precise
 
 branches:
   only:
     - master
     - staging
+
+services:
+  - mysql
 
 php:
   - 5.5
