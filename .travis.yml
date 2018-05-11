@@ -11,6 +11,10 @@ php:
   - 5.6
   - 7.0
 
+cache:
+  directories:
+    - vendor
+
 env:
   global:
     - DB=mysql
