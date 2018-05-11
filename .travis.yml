@@ -13,6 +13,9 @@ services:
 php:
   - 5.5
 
+git:
+  depth: 5
+
 env:
   global:
     - DB=mysql
