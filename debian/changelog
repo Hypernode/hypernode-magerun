@@ -1,3 +1,16 @@
+magerun-hypernode (20180512.103256) xenial; urgency=medium
+
+  [ Daniel Ruf ]
+  * chore: update Travis CI setup to reflect the config of n98-magerun
+  * chore: clone last 5 commits
+  * chore: cache dependencies
+  * chore: change path to composer cache directory
+  * chore: fix excludes in Travis CI config
+  * xhore: add database setting to matrix
+  * chore: add mysql service and use precise
+
+ -- Rick van de Loo <vdloo@workstation4>  Sat, 12 May 2018 10:32:57 +0200
+
 magerun-hypernode (20180112.220302) trusty; urgency=medium
 
   [ Fabio Ros ]
