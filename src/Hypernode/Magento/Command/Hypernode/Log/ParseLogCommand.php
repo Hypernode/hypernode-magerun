@@ -55,6 +55,7 @@ class ParseLogCommand extends AbstractHypernodeCommand
 
         if ($logPath) {
             $process = new Process("cut -d ' ' -f 2- " . $logPath . " | sort | uniq -c | sort -n -k 1 | tail -" . $input->getArgument('top') . "");
+            $process->setTimeout($process->getTimeout() * 10);
 
             $process->run(function ($type, $buffer) {
 
