@@ -1,3 +1,14 @@
+magerun-hypernode (20180615.190539) xenial; urgency=medium
+
+  [ Rick van de Loo ]
+  * add docsify frontend for docs
+  * remove unused css
+
+  [ Jochem Klaver ]
+  * Increase Process timeout to prevent timout errors on reading big system logs
+
+ -- Rick van de Loo <vdloo@workstation4>  Fri, 15 Jun 2018 19:05:40 +0200
+
 magerun-hypernode (20180512.103256) xenial; urgency=medium
 
   [ Daniel Ruf ]
