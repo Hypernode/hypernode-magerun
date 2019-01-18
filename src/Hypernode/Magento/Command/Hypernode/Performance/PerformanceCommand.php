@@ -989,7 +989,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
          */
 
         /** currently allowed sitemap filetypes  */
-         $sitemapAllowedTypes = ['application/xml', 'text/plain'];
+         $sitemapAllowedTypes = ['application/xml', 'text/xml', 'text/plain'];
 
 
         if (FileSystem::isAbsolutePath($sitemap['path'])) {
@@ -1013,7 +1013,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
 
         if ($type === 'text/plain') {
             $xml = new \SimpleXMLElement($this->convertTxtToXml(file($sitemap['path'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)));
-        } elseif ($type === 'application/xml') {
+        } elseif ($type === 'application/xml' || $type === 'text/xml') {
             $xml = new \SimpleXMLElement(file_get_contents($path));
         }
 
