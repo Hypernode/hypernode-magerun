@@ -1,3 +1,15 @@
+magerun-hypernode (20190121.155345) xenial; urgency=medium
+
+  [ Rick van de Loo ]
+  * use byte style from community.hypernode.io
+
+  [ Fabio Ros ]
+  * Allow different XML mime type in PHP 7.2
+
+  [ Rick van de Loo ]
+
+ -- Rick van de Loo <vdloo@workstation4>  Mon, 21 Jan 2019 15:53:46 +0100
+
 magerun-hypernode (20180615.190539) xenial; urgency=medium
 
   [ Rick van de Loo ]
