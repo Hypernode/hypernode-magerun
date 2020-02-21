@@ -3,7 +3,9 @@ autoloaders:
 
 commands:
   customCommands:
-    - Hypernode\Magento\Command\Hypernode\Performance\PerformanceCommand
+    - Hypernode\Magento2\Command\Hypernode\Crack\AdminPasswordCommand
+    - Hypernode\Magento2\Command\Hypernode\Log\ParseLogCommand
+    - Hypernode\Magento2\Command\Hypernode\Performance\PerformanceCommand
 
 passwordCracker:
   rulesDirs:
