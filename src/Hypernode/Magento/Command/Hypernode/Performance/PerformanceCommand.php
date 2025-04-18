@@ -85,7 +85,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
      *
      * @return bool|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // setting the options - hypernode demands it
         $this->_options = $input->getOptions();
@@ -120,7 +120,7 @@ class PerformanceCommand extends AbstractHypernodeCommand
                     '<error>Use argument --sitemap to specify sitemap when using Magento 2.</error>'
                 );
 
-                return;
+                return 1;
             }
 
             if ($this->_options['silent']) {
@@ -170,6 +170,8 @@ class PerformanceCommand extends AbstractHypernodeCommand
                 }
             }
         }
+
+        return 0;
     }
 
     /**

@@ -4,6 +4,7 @@ autoloaders:
 commands:
   customCommands:
     - Hypernode\Magento\Command\Hypernode\Performance\PerformanceCommand
+    - Hypernode\Magento\Command\Hypernode\Config\CheckPerformanceConfigCommand
 
 passwordCracker:
   rulesDirs:
